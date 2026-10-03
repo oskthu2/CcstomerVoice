@@ -47,7 +47,8 @@ export const ai = {
 
 export const demoMode = provider === "demo";
 
-export const adminToken = process.env.ADMIN_TOKEN?.trim() || "";
+// Tolerate quotes around the value in secrets.env (ADMIN_TOKEN="abc").
+export const adminToken = env("ADMIN_TOKEN").replace(/^(["'])(.*)\1$/, "$2");
 export const publicInputUrl = process.env.PUBLIC_INPUT_URL?.trim() || "";
 export const seedOnStart = process.env.SEED_ON_START === "true";
 

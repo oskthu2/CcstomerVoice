@@ -8,14 +8,33 @@ export default function AdminPage() {
   const [token, setToken] = useState("");
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
+  const [auth, setAuth] = useState<"checking" | "ok" | "bad">("checking");
 
   useEffect(() => {
     try { setToken(localStorage.getItem("cv-admin-token") ?? ""); } catch { /* ignore */ }
   }, []);
   const saveToken = (t: string) => {
-    setToken(t);
-    try { localStorage.setItem("cv-admin-token", t); } catch { /* ignore */ }
+    setToken(t.trim());
+    try { localStorage.setItem("cv-admin-token", t.trim()); } catch { /* ignore */ }
   };
+
+  // Verify the token as it's typed so a wrong one is obvious before any action fails.
+  useEffect(() => {
+    setAuth("checking");
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch("/api/admin", {
+          method: "POST",
+          headers: { "content-type": "application/json", "x-admin-token": token },
+          body: JSON.stringify({ action: "check" }),
+        });
+        setAuth(res.ok ? "ok" : "bad");
+      } catch {
+        setAuth("bad");
+      }
+    }, 300);
+    return () => clearTimeout(t);
+  }, [token]);
 
   async function act(action: string, extra: Record<string, unknown> = {}, confirmText?: string) {
     if (confirmText && !confirm(confirmText)) return false;
@@ -56,7 +75,15 @@ export default function AdminPage() {
       <div className="toolbar">
         <label>
           Admin-token{" "}
-          <input type="password" value={token} onChange={(e) => saveToken(e.target.value)} style={{ padding: 8, borderRadius: 8, border: "1px solid var(--border)" }} />
+          <input
+            type="password"
+            value={token}
+            onChange={(e) => saveToken(e.target.value)}
+            style={{ padding: 8, borderRadius: 8, border: `2px solid ${auth === "bad" ? "var(--danger)" : "var(--border)"}` }}
+          />{" "}
+          <b style={{ color: auth === "ok" ? "var(--accent)" : auth === "bad" ? "var(--danger)" : "var(--muted)" }}>
+            {auth === "ok" ? "✔ Inloggad" : auth === "bad" ? "✖ Fel token" : "…"}
+          </b>
         </label>
         {state && (
           <span>
@@ -73,8 +100,17 @@ export default function AdminPage() {
         <a className="btn" href={exportUrl("json")}>Exportera JSON</a>
         <button className="btn danger" disabled={busy} onClick={() => act("reset", {}, "Radera ALLA röster och insikter?")}>Rensa allt</button>
       </div>
+      {auth === "bad" && (
+        <div className="panel" style={{ borderColor: "var(--danger)" }}>
+          <b>Ange admin-token för att använda admin.</b>
+          <span>
+            Skriv värdet av <code>ADMIN_TOKEN</code> från <code>config/secrets.env</code> i fältet ovan (standard i exempelfilen är{" "}
+            <code>change-me</code>). Har du ändrat filen? Kör <code>docker compose up -d</code> så att den läses in på nytt.
+          </span>
+        </div>
+      )}
       {msg && <div>{msg}</div>}
-      {state && (
+      {state && auth === "ok" && (
         <AiSettingsPanel
           token={token}
           demoMode={state.demoMode}

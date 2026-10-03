@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { authorized } from "@/lib/auth";
+import { authorized, UNAUTHORIZED_MSG } from "@/lib/auth";
 import { testAi } from "@/lib/ai";
 import { loadProducts } from "@/lib/config";
 import { deleteStatement, ensureStarted, reanalyzeAll, regroupThemes, resetAll, retryFailed, seedExamples } from "@/lib/engine";
 
 export async function POST(req: Request) {
-  if (!authorized(req)) return NextResponse.json({ error: "Fel admin-token" }, { status: 401 });
+  if (!authorized(req)) return NextResponse.json({ error: UNAUTHORIZED_MSG }, { status: 401 });
   ensureStarted();
   const { action, id, regroupAfter } = await req.json().catch(() => ({}));
   try {

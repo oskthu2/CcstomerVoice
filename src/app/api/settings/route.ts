@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { analyzeSystemPrompt, regroupSystemPrompt } from "@/lib/ai";
-import { authorized } from "@/lib/auth";
+import { authorized, UNAUTHORIZED_MSG } from "@/lib/auth";
 import { loadProducts } from "@/lib/config";
 import { DEFAULT_SETTINGS, getSettings, resetSettings, saveSettings } from "@/lib/settings";
 import { getState } from "@/lib/store";
@@ -20,12 +20,12 @@ function payload() {
 }
 
 export function GET(req: Request) {
-  if (!authorized(req)) return NextResponse.json({ error: "Fel admin-token" }, { status: 401 });
+  if (!authorized(req)) return NextResponse.json({ error: UNAUTHORIZED_MSG }, { status: 401 });
   return NextResponse.json(payload());
 }
 
 export async function POST(req: Request) {
-  if (!authorized(req)) return NextResponse.json({ error: "Fel admin-token" }, { status: 401 });
+  if (!authorized(req)) return NextResponse.json({ error: UNAUTHORIZED_MSG }, { status: 401 });
   const body = await req.json().catch(() => ({}));
   if (body.action === "reset") resetSettings();
   else saveSettings(body.settings ?? {});

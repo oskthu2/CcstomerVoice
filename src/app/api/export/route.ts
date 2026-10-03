@@ -1,4 +1,4 @@
-import { authorized } from "@/lib/auth";
+import { authorized, UNAUTHORIZED_MSG } from "@/lib/auth";
 import { getState } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -7,7 +7,7 @@ const csvCell = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
 
 /** Download everything for follow-up product work: ?format=csv (one row per insight) or json. */
 export function GET(req: Request) {
-  if (!authorized(req)) return new Response("Unauthorized", { status: 401 });
+  if (!authorized(req)) return new Response(UNAUTHORIZED_MSG, { status: 401 });
   const s = getState();
   const format = new URL(req.url).searchParams.get("format") ?? "json";
   if (format === "csv") {
