@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { authorized, UNAUTHORIZED_MSG } from "@/lib/auth";
 import { testAi } from "@/lib/ai";
-import { loadProducts } from "@/lib/config";
+import { loadProducts } from "@/lib/products";
 import { deleteStatement, ensureStarted, reanalyzeAll, regroupThemes, resetAll, retryFailed, seedExamples } from "@/lib/engine";
 
 export async function POST(req: Request) {

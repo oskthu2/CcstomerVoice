@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import AiSettingsPanel from "@/components/AiSettingsPanel";
+import ProductCatalogPanel from "@/components/ProductCatalogPanel";
+import WallSettingsPanel from "@/components/WallSettingsPanel";
 import { useLiveState } from "@/lib/useLiveState";
 
 export default function AdminPage() {
@@ -66,6 +68,10 @@ export default function AdminPage() {
     }
   }
 
+  const progress = {
+    remaining: state ? state.statements.filter((s) => s.status === "pending" || s.status === "processing").length : 0,
+    total: state?.statements.length ?? 0,
+  };
   const exportUrl = (format: string) => `/api/export?format=${format}&token=${encodeURIComponent(token)}`;
   const statements = state ? [...state.statements].sort((a, b) => b.createdAt.localeCompare(a.createdAt)) : [];
 
@@ -111,15 +117,11 @@ export default function AdminPage() {
       )}
       {msg && <div>{msg}</div>}
       {state && auth === "ok" && (
-        <AiSettingsPanel
-          token={token}
-          demoMode={state.demoMode}
-          progress={{
-            remaining: state.statements.filter((s) => s.status === "pending" || s.status === "processing").length,
-            total: state.statements.length,
-          }}
-          act={act}
-        />
+        <>
+          <WallSettingsPanel token={token} current={state.wall} />
+          <AiSettingsPanel token={token} demoMode={state.demoMode} progress={progress} act={act} />
+          <ProductCatalogPanel token={token} voices={state.statements.length} sorting={progress.remaining > 0} act={act} />
+        </>
       )}
       <table>
         <thead>

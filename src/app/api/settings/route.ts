@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { analyzeSystemPrompt, regroupSystemPrompt } from "@/lib/ai";
 import { authorized, UNAUTHORIZED_MSG } from "@/lib/auth";
-import { loadProducts } from "@/lib/config";
+import { loadProducts } from "@/lib/products";
 import { DEFAULT_SETTINGS, getSettings, resetSettings, saveSettings } from "@/lib/settings";
 import { getState } from "@/lib/store";
 

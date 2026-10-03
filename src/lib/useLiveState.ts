@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import type { WallSettings } from "./settings";
 import type { Insight, Statement, Theme } from "./types";
 
 export interface LiveState {
@@ -8,6 +9,7 @@ export interface LiveState {
   demoMode: boolean;
   model: string | null;
   inputUrl: string;
+  wall: WallSettings;
   statements: Statement[];
   insights: Insight[];
   themes: Theme[];
@@ -25,7 +27,7 @@ export function useLiveState(intervalMs = 2000) {
         const res = await fetch(`/api/state?since=${version.current}`, { cache: "no-store" });
         const json = await res.json();
         if (!alive) return;
-        if (json.unchanged) setState((s) => (s ? { ...s, queue: json.queue } : s));
+        if (json.unchanged) setState((s) => (s ? { ...s, queue: json.queue, wall: json.wall } : s));
         else {
           version.current = json.version;
           setState(json);

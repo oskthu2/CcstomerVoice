@@ -61,7 +61,8 @@ export default function AiSettingsPanel({ token, demoMode, progress, act }: Prop
     if (then === "reanalyze" && !confirm(`Sortera om alla ${progress.total} röster med de nya instruktionerna? Det gör ett AI-anrop per röst.`)) return;
     setBusy(true);
     try {
-      await post({ settings: draft });
+      // Wall settings are edited in their own panel; never overwrite them from here.
+      await post({ settings: { ...draft, wall: undefined } });
       setStatus("Instruktionerna är sparade och gäller för nya röster.");
       if (then === "reanalyze") {
         setStatus((await act("reanalyze", { regroupAfter }))
@@ -101,8 +102,10 @@ export default function AiSettingsPanel({ token, demoMode, progress, act }: Prop
     );
   }
 
-  const dirty = JSON.stringify(draft) !== JSON.stringify(data.settings);
-  const isDefault = JSON.stringify(data.settings) === JSON.stringify(data.defaults);
+  // Compare only the AI fields; wall settings live in their own panel.
+  const ai = (x: Settings) => JSON.stringify([x.analyzeInstructions, x.regroupInstructions, x.maxThemes, x.maxInsights]);
+  const dirty = ai(draft) !== ai(data.settings);
+  const isDefault = ai(data.settings) === ai(data.defaults);
   const set = <K extends keyof Settings>(k: K, v: Settings[K]) => setDraft({ ...draft, [k]: v });
   const sorting = progress.remaining > 0;
 

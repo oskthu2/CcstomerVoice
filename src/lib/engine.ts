@@ -1,5 +1,6 @@
 import { analyzeStatement, regroup, type RawInsight } from "./ai";
-import { loadProducts, loadSeed, seedOnStart } from "./config";
+import { loadSeed, seedOnStart } from "./config";
+import { loadProducts } from "./products";
 import { getState, mutate, newId } from "./store";
 import type { Insight, Product, Statement } from "./types";
 

@@ -24,21 +24,22 @@ export default function WallPage() {
     setInputUrl(state?.inputUrl || `${location.origin}/input`);
   }, [state?.inputUrl]);
 
-  if (!state) return <div className="wall" />;
+  const themeClass = `wall theme-${state?.wall?.theme ?? "dark"}`;
+  if (!state) return <div className={themeClass} />;
 
   const products = new Set(state.insights.map((i) => i.product));
   const future = new Set(state.insights.filter((i) => i.productStatus === "future").map((i) => i.product));
   const latest = [...state.statements].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 6);
 
   return (
-    <div className="wall">
+    <div className={themeClass}>
       <div style={{ position: "relative" }}>
         {state.insights.length === 0 ? (
           <div style={{ display: "grid", placeItems: "center", height: "100%", fontSize: 32, color: "var(--muted)" }}>
             Väntar på de första rösterna …
           </div>
         ) : (
-          <MindMap themes={state.themes} insights={state.insights} statements={state.statements} tour={tour} />
+          <MindMap themes={state.themes} insights={state.insights} statements={state.statements} tour={tour} timing={state.wall} />
         )}
         <div className="wall-hint">{tour ? "Rundtur pågår – mellanslag pausar" : "Rundtur pausad – mellanslag startar"}</div>
       </div>

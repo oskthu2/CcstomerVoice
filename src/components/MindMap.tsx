@@ -5,9 +5,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { buildGraph, type ProductData, type RootData, type ThemeData } from "@/lib/layout";
 import type { Insight, Statement, Theme } from "@/lib/types";
 
-const OVERVIEW_MS = 14_000;
-const THEME_MS = 9_000;
-const FRESH_MS = 14_000;
+/** Camera tour pacing in seconds (set from /admin). */
+export interface TourTiming {
+  overviewSec: number;
+  themeSec: number;
+  freshSec: number;
+}
 
 const inner = (side: string) => (side === "right" ? Position.Left : Position.Right);
 const outer = (side: string) => (side === "right" ? Position.Right : Position.Left);
@@ -65,9 +68,12 @@ interface Props {
   insights: Insight[];
   statements: Statement[];
   tour: boolean;
+  timing: TourTiming;
 }
 
-function MindMapInner({ themes, insights, statements, tour }: Props) {
+function MindMapInner({ themes, insights, statements, tour, timing }: Props) {
+  const timingRef = useRef(timing);
+  timingRef.current = timing;
   const flow = useReactFlow();
   const [fresh, setFresh] = useState<Set<string>>(new Set());
   const seen = useRef<Set<string> | null>(null);
@@ -85,9 +91,10 @@ function MindMapInner({ themes, insights, statements, tour }: Props) {
     if (!added.length) return;
     setFresh(new Set(added.map((i) => i.id)));
     const themeId = added[added.length - 1].themeId;
-    focusUntil.current = Date.now() + FRESH_MS;
+    const freshMs = timingRef.current.freshSec * 1000;
+    focusUntil.current = Date.now() + freshMs;
     setTimeout(() => flow.fitView({ nodes: focusNodes(themeId), duration: 1400, padding: 0.12, maxZoom: 1 }), 150);
-    const t = setTimeout(() => setFresh(new Set()), FRESH_MS);
+    const t = setTimeout(() => setFresh(new Set()), freshMs);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [insights]);
@@ -117,10 +124,10 @@ function MindMapInner({ themes, insights, statements, tour }: Props) {
       step = step + 1 > ids.length ? 0 : step + 1;
       if (step === 0 || ids.length === 0) {
         flow.fitView({ duration: 1600, padding: 0.06 });
-        timer = setTimeout(next, OVERVIEW_MS);
+        timer = setTimeout(next, timingRef.current.overviewSec * 1000);
       } else {
         flow.fitView({ nodes: focusNodes(ids[step - 1]), duration: 1600, padding: 0.12, maxZoom: 1 });
-        timer = setTimeout(next, THEME_MS);
+        timer = setTimeout(next, timingRef.current.themeSec * 1000);
       }
     };
     timer = setTimeout(next, 800);

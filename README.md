@@ -71,6 +71,10 @@ docker compose exec ollama ollama pull qwen2.5:7b
 - **AI instructions (admin):** edit the instruction used to sort each voice and the theme-regrouping instruction,
   set max themes / insights per voice, preview the full prompt, and click *Sortera om alla röster* to re-sort the
   existing voices. The wall keeps showing the old result until each voice has been re-sorted. Saved in the data volume.
+- **Wall & catalogue (admin):** switch the wall between dark, light or the browser's theme, set the tour pacing
+  (overview / per theme / new voice), and edit the Inera product catalogue (add, remove, aliases, current vs
+  future). Changes reach the wall within a few seconds; catalogue edits are stored in the data volume and
+  *Återställ till config-filen* goes back to `config/inera-products.json`.
 - **Admin:** load the examples, *Gruppera om teman* (AI consolidates the themes and merges synonymous future products),
   *Analysera om alla*, delete inappropriate entries, and export **CSV/JSON** for follow-up product work.
 

@@ -7,12 +7,25 @@ import { DATA_DIR } from "./config";
  * JSON output format are always appended in code, so edits here can't break parsing.
  * `{maxThemes}` and `{maxInsights}` are replaced with the numeric settings.
  */
+export type WallTheme = "dark" | "light" | "auto";
+
+/** Appearance and camera-tour pacing of the big-screen wall (seconds). */
+export interface WallSettings {
+  theme: WallTheme;
+  overviewSec: number;
+  themeSec: number;
+  freshSec: number;
+}
+
 export interface Settings {
   analyzeInstructions: string;
   regroupInstructions: string;
   maxThemes: number;
   maxInsights: number;
+  wall: WallSettings;
 }
+
+export const DEFAULT_WALL: WallSettings = { theme: "dark", overviewSec: 14, themeSec: 9, freshSec: 14 };
 
 export const DEFAULT_ANALYZE = `Du är produktanalytiker på Inera, som utvecklar och förvaltar gemensamma digitala tjänster för regioner och kommuner i Sverige.
 Besökare på en konferens lämnar uttalanden om vårdens digitalisering. Din uppgift:
@@ -60,6 +73,7 @@ export const DEFAULT_SETTINGS: Settings = {
   regroupInstructions: DEFAULT_REGROUP,
   maxThemes: 8,
   maxInsights: 4,
+  wall: DEFAULT_WALL,
 };
 
 const FILE = path.join(DATA_DIR, "settings.json");
@@ -68,7 +82,8 @@ const g = globalThis as unknown as { __cvSettings?: Settings };
 export function getSettings(): Settings {
   if (!g.__cvSettings) {
     try {
-      g.__cvSettings = { ...DEFAULT_SETTINGS, ...JSON.parse(fs.readFileSync(FILE, "utf8")) };
+      const saved = JSON.parse(fs.readFileSync(FILE, "utf8"));
+      g.__cvSettings = { ...DEFAULT_SETTINGS, ...saved, wall: { ...DEFAULT_WALL, ...saved.wall } };
     } catch {
       g.__cvSettings = { ...DEFAULT_SETTINGS };
     }
@@ -81,13 +96,24 @@ const clampInt = (v: unknown, min: number, max: number, fallback: number) => {
   return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : fallback;
 };
 
-export function saveSettings(input: Partial<Settings>): Settings {
+function cleanWall(input: Partial<WallSettings> | undefined, cur: WallSettings): WallSettings {
+  const w = { ...cur, ...input };
+  return {
+    theme: w.theme === "light" || w.theme === "auto" ? w.theme : "dark",
+    overviewSec: clampInt(w.overviewSec, 3, 120, cur.overviewSec),
+    themeSec: clampInt(w.themeSec, 3, 120, cur.themeSec),
+    freshSec: clampInt(w.freshSec, 3, 120, cur.freshSec),
+  };
+}
+
+export function saveSettings(input: Partial<Omit<Settings, "wall">> & { wall?: Partial<WallSettings> }): Settings {
   const cur = getSettings();
   const next: Settings = {
     analyzeInstructions: input.analyzeInstructions?.trim() || cur.analyzeInstructions,
     regroupInstructions: input.regroupInstructions?.trim() || cur.regroupInstructions,
     maxThemes: clampInt(input.maxThemes ?? cur.maxThemes, 2, 20, cur.maxThemes),
     maxInsights: clampInt(input.maxInsights ?? cur.maxInsights, 1, 10, cur.maxInsights),
+    wall: cleanWall(input.wall, cur.wall),
   };
   fs.mkdirSync(DATA_DIR, { recursive: true });
   fs.writeFileSync(FILE, JSON.stringify(next, null, 2));
@@ -95,14 +121,10 @@ export function saveSettings(input: Partial<Settings>): Settings {
   return next;
 }
 
+/** Restore the default AI instructions (wall settings are kept). */
 export function resetSettings(): Settings {
-  try {
-    fs.unlinkSync(FILE);
-  } catch {
-    /* already default */
-  }
-  g.__cvSettings = { ...DEFAULT_SETTINGS };
-  return g.__cvSettings;
+  const { wall } = getSettings();
+  return saveSettings({ ...DEFAULT_SETTINGS, wall });
 }
 
 export function fill(template: string, s: Settings) {

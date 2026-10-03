@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { Product, SeedVoice } from "./types";
+import type { SeedVoice } from "./types";
 
 const root = process.cwd();
 export const CONFIG_DIR = process.env.CONFIG_DIR || path.join(root, "config");
@@ -51,12 +51,6 @@ export const demoMode = provider === "demo";
 export const adminToken = env("ADMIN_TOKEN").replace(/^(["'])(.*)\1$/, "$2");
 export const publicInputUrl = process.env.PUBLIC_INPUT_URL?.trim() || "";
 export const seedOnStart = process.env.SEED_ON_START === "true";
-
-export function loadProducts(): Product[] {
-  const file = path.join(CONFIG_DIR, "inera-products.json");
-  const json = JSON.parse(fs.readFileSync(file, "utf8"));
-  return json.products as Product[];
-}
 
 let seedCache: { source: string; statements: SeedVoice[] } | null = null;
 export function loadSeed() {
