@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { authorized } from "@/lib/auth";
-import { deleteStatement, ensureStarted, reanalyzeAll, regroupThemes, resetAll, seedExamples } from "@/lib/engine";
+import { testAi } from "@/lib/ai";
+import { loadProducts } from "@/lib/config";
+import { deleteStatement, ensureStarted, reanalyzeAll, regroupThemes, resetAll, retryFailed, seedExamples } from "@/lib/engine";
 
 export async function POST(req: Request) {
   if (!authorized(req)) return NextResponse.json({ error: "Fel admin-token" }, { status: 401 });
@@ -20,6 +22,10 @@ export async function POST(req: Request) {
       case "delete":
         deleteStatement(String(id));
         return NextResponse.json({ ok: true });
+      case "test":
+        return NextResponse.json({ ok: true, ...(await testAi(loadProducts())) });
+      case "retry":
+        return NextResponse.json({ ok: true, retried: retryFailed() });
       case "reset":
         resetAll();
         return NextResponse.json({ ok: true });

@@ -29,7 +29,9 @@ export default function AdminPage() {
       const json = await res.json();
       if (!res.ok) throw new Error(json.error);
       setMsg(
-        action === "seed" ? `${json.added} exempel köade för analys.`
+        action === "test" ? `AI fungerar ✔ (${json.provider}, ${json.model}, ${json.ms} ms): ${json.insights.map((i: { product: string }) => i.product).join(", ") || "inga insikter"}`
+        : action === "retry" ? `${json.retried} misslyckade röster köade igen.`
+        : action === "seed" ? `${json.added} exempel köade för analys.`
         : action === "regroup" ? (json.ok ? "Teman omgrupperade." : "Omgruppering kräver AI-nyckel och minst en insikt.")
         : "Klart.",
       );
@@ -60,6 +62,8 @@ export default function AdminPage() {
       </div>
       <div className="toolbar">
         <button className="btn primary" disabled={busy} onClick={() => act("seed")}>Ladda exempel (Dagens Medicin)</button>
+        <button className="btn" disabled={busy} onClick={() => act("test")}>Testa AI</button>
+        <button className="btn" disabled={busy} onClick={() => act("retry")}>Försök igen med misslyckade</button>
         <button className="btn" disabled={busy} onClick={() => act("regroup")}>Gruppera om teman (AI)</button>
         <button className="btn" disabled={busy} onClick={() => act("reanalyze", {}, "Analysera om alla röster från början?")}>Analysera om alla</button>
         <a className="btn" href={exportUrl("csv")}>Exportera CSV</a>
@@ -83,7 +87,10 @@ export default function AdminPage() {
                   </div>
                 ))}
               </td>
-              <td className={`status ${s.status}`} title={s.error}>{s.status}</td>
+              <td className={`status ${s.status}`}>
+                {s.status}
+                {s.error && <div style={{ fontWeight: 400, maxWidth: 260 }}>{s.error}</div>}
+              </td>
               <td><button className="btn danger" disabled={busy} onClick={() => act("delete", { id: s.id }, "Ta bort rösten?")}>Ta bort</button></td>
             </tr>
           ))}

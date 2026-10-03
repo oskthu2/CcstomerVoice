@@ -63,6 +63,13 @@ export function deleteStatement(id: string) {
   });
 }
 
+export function retryFailed() {
+  const failed = getState().statements.filter((s) => s.status === "error");
+  mutate((s) => s.statements.forEach((st) => st.status === "error" && (st.status = "pending")));
+  failed.forEach((st) => enqueue(st.id));
+  return failed.length;
+}
+
 export function resetAll() {
   engine.queue = [];
   mutate((s) => {

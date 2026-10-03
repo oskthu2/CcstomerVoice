@@ -135,21 +135,46 @@ const REGROUP_SCHEMA = {
 };
 
 let anthropicClient: Anthropic | null = null;
+
+/** Turn SDK errors into a short message that is shown in /admin. */
+function describe(e: unknown): Error {
+  if (e instanceof Anthropic.AuthenticationError) return new Error("401: ogiltig ANTHROPIC_API_KEY");
+  if (e instanceof Anthropic.PermissionDeniedError) return new Error(`403: nyckeln saknar behörighet (${e.message})`);
+  if (e instanceof Anthropic.NotFoundError) return new Error(`404: modellen "${ai.anthropic.model}" finns inte för kontot – sätt ANTHROPIC_MODEL`);
+  if (e instanceof Anthropic.RateLimitError) return new Error("429: rate limit eller slut på krediter");
+  if (e instanceof Anthropic.APIError) return new Error(`${e.status ?? ""} ${e.message}`.trim());
+  return e instanceof Error ? e : new Error(String(e));
+}
 let openaiClient: OpenAI | null = null;
 
 async function chatJson<T>(system: string, user: string, schema: Record<string, unknown>): Promise<T> {
   if (ai.provider === "anthropic") {
     anthropicClient ??= new Anthropic({ apiKey: ai.anthropic.apiKey });
-    const res = await anthropicClient.beta.messages.create({
+    const base = {
       model: ai.anthropic.model,
       max_tokens: 16000,
       system,
-      messages: [{ role: "user", content: user }],
-      output_config: { effort: ai.anthropic.effort, format: { type: "json_schema", schema } },
+      messages: [{ role: "user" as const, content: user }],
+      output_config: { effort: ai.anthropic.effort, format: { type: "json_schema" as const, schema } },
+    };
+    let res;
+    try {
       // If a safety classifier declines, the API retries on a suitable fallback model.
-      betas: ["server-side-fallback-2026-07-01"],
-      fallbacks: "default",
-    });
+      res = await anthropicClient.beta.messages.create({
+        ...base,
+        betas: ["server-side-fallback-2026-07-01"],
+        fallbacks: "default",
+      });
+    } catch (e) {
+      // Some accounts/models don't accept the fallback beta: retry once as a plain request.
+      if (!(e instanceof Anthropic.BadRequestError)) throw describe(e);
+      console.warn("[ai] request rejected with fallbacks, retrying without:", e.message);
+      try {
+        res = await anthropicClient.messages.create(base);
+      } catch (e2) {
+        throw describe(e2);
+      }
+    }
     if (res.stop_reason === "refusal") throw new Error("Modellen avböjde att svara.");
     if (res.stop_reason === "max_tokens") throw new Error("Svaret blev för långt (max_tokens).");
     const text = res.content.flatMap((b) => (b.type === "text" ? [b.text] : [])).join("");
@@ -186,6 +211,18 @@ export async function analyzeStatement(
     INSIGHTS_SCHEMA,
   );
   return (out.insights ?? []).filter((i) => i && i.need && i.product && i.theme);
+}
+
+/** Quick end-to-end check used by the admin "Testa AI" button. */
+export async function testAi(products: Product[]) {
+  const t0 = Date.now();
+  const insights = await analyzeStatement(
+    "Vi vill att vuxna ska kunna utses till digitala ombud för andra vuxna inom sjukvården.",
+    {},
+    products,
+    [],
+  );
+  return { provider: ai.provider, model: ai.model, ms: Date.now() - t0, insights };
 }
 
 /** Consolidate themes (and synonym future products) across all insights. */
