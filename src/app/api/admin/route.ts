@@ -7,7 +7,7 @@ import { deleteStatement, ensureStarted, reanalyzeAll, regroupThemes, resetAll, 
 export async function POST(req: Request) {
   if (!authorized(req)) return NextResponse.json({ error: "Fel admin-token" }, { status: 401 });
   ensureStarted();
-  const { action, id } = await req.json().catch(() => ({}));
+  const { action, id, regroupAfter } = await req.json().catch(() => ({}));
   try {
     switch (action) {
       case "check":
@@ -15,8 +15,7 @@ export async function POST(req: Request) {
       case "seed":
         return NextResponse.json({ ok: true, added: seedExamples() });
       case "reanalyze":
-        reanalyzeAll();
-        return NextResponse.json({ ok: true });
+        return NextResponse.json({ ok: true, queued: reanalyzeAll({ regroupAfter: Boolean(regroupAfter) }) });
       case "regroup":
         return NextResponse.json({ ok: await regroupThemes() });
       case "delete":

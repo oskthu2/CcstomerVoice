@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import AiSettingsPanel from "@/components/AiSettingsPanel";
 import { useLiveState } from "@/lib/useLiveState";
 
 export default function AdminPage() {
@@ -17,7 +18,7 @@ export default function AdminPage() {
   };
 
   async function act(action: string, extra: Record<string, unknown> = {}, confirmText?: string) {
-    if (confirmText && !confirm(confirmText)) return;
+    if (confirmText && !confirm(confirmText)) return false;
     setBusy(true);
     setMsg("");
     try {
@@ -28,15 +29,19 @@ export default function AdminPage() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error);
+      if (action === "regroup" && !json.ok) throw new Error("Omgruppering kräver AI-nyckel och minst en insikt.");
       setMsg(
         action === "test" ? `AI fungerar ✔ (${json.provider}, ${json.model}, ${json.ms} ms): ${json.insights.map((i: { product: string }) => i.product).join(", ") || "inga insikter"}`
         : action === "retry" ? `${json.retried} misslyckade röster köade igen.`
         : action === "seed" ? `${json.added} exempel köade för analys.`
         : action === "regroup" ? (json.ok ? "Teman omgrupperade." : "Omgruppering kräver AI-nyckel och minst en insikt.")
+        : action === "reanalyze" ? `${json.queued} röster köade för omsortering.`
         : "Klart.",
       );
+      return true;
     } catch (e) {
       setMsg(`Fel: ${e instanceof Error ? e.message : e}`);
+      return false;
     } finally {
       setBusy(false);
     }
@@ -64,13 +69,22 @@ export default function AdminPage() {
         <button className="btn primary" disabled={busy} onClick={() => act("seed")}>Ladda exempel (Dagens Medicin)</button>
         <button className="btn" disabled={busy} onClick={() => act("test")}>Testa AI</button>
         <button className="btn" disabled={busy} onClick={() => act("retry")}>Försök igen med misslyckade</button>
-        <button className="btn" disabled={busy} onClick={() => act("regroup")}>Gruppera om teman (AI)</button>
-        <button className="btn" disabled={busy} onClick={() => act("reanalyze", {}, "Analysera om alla röster från början?")}>Analysera om alla</button>
         <a className="btn" href={exportUrl("csv")}>Exportera CSV</a>
         <a className="btn" href={exportUrl("json")}>Exportera JSON</a>
         <button className="btn danger" disabled={busy} onClick={() => act("reset", {}, "Radera ALLA röster och insikter?")}>Rensa allt</button>
       </div>
       {msg && <div>{msg}</div>}
+      {state && (
+        <AiSettingsPanel
+          token={token}
+          demoMode={state.demoMode}
+          progress={{
+            remaining: state.statements.filter((s) => s.status === "pending" || s.status === "processing").length,
+            total: state.statements.length,
+          }}
+          act={act}
+        />
+      )}
       <table>
         <thead>
           <tr><th>Röst</th><th>Avsändare</th><th>Insikter</th><th>Status</th><th /></tr>

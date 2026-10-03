@@ -35,6 +35,8 @@ export interface Theme {
   id: string;
   name: string;
   description?: string;
+  /** Sorting generation; a re-sort starts a new one so old themes aren't reused. */
+  gen?: number;
 }
 
 export interface State {
@@ -42,6 +44,7 @@ export interface State {
   statements: Statement[];
   insights: Insight[];
   themes: Theme[];
+  generation?: number;
 }
 
 export interface SeedVoice {

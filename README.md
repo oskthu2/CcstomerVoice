@@ -68,6 +68,9 @@ docker compose exec ollama ollama pull qwen2.5:7b
   the microphone on `https://` or `localhost`. On a tablet over plain LAN http, use the keyboard's own dictation instead.
 - **The wall** tours automatically: an overview, then one theme at a time. When a new voice arrives, it flies
   to that voice and highlights it. `Space` pauses or resumes the tour. `/wall?tour=0` starts it paused.
+- **AI instructions (admin):** edit the instruction used to sort each voice and the theme-regrouping instruction,
+  set max themes / insights per voice, preview the full prompt, and click *Sortera om alla röster* to re-sort the
+  existing voices. The wall keeps showing the old result until each voice has been re-sorted. Saved in the data volume.
 - **Admin:** load the examples, *Gruppera om teman* (AI consolidates the themes and merges synonymous future products),
   *Analysera om alla*, delete inappropriate entries, and export **CSV/JSON** for follow-up product work.
 

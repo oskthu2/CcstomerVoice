@@ -4,9 +4,11 @@ import { getState, mutate, newId } from "./store";
 import type { Insight, Product, Statement } from "./types";
 
 const g = globalThis as unknown as {
-  __cvEngine?: { queue: string[]; running: boolean; started: boolean };
+  __cvEngine?: { queue: string[]; running: boolean; started: boolean; regroupAfter: boolean };
 };
-const engine = (g.__cvEngine ??= { queue: [], running: false, started: false });
+const engine = (g.__cvEngine ??= { queue: [], running: false, started: false, regroupAfter: false });
+
+const generation = () => getState().generation ?? 0;
 
 const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9åäöé]+/g, " ").trim();
 
@@ -45,14 +47,20 @@ export function seedExamples() {
   return added;
 }
 
-export function reanalyzeAll() {
+/**
+ * Re-sort every statement with the current AI instructions. Existing insights stay on
+ * the wall until each statement has been re-analysed; a new generation makes the AI
+ * build fresh themes instead of reusing the old ones.
+ */
+export function reanalyzeAll(opts: { regroupAfter?: boolean } = {}) {
   mutate((s) => {
-    s.insights = [];
-    s.themes = [];
+    s.generation = (s.generation ?? 0) + 1;
     for (const st of s.statements) st.status = "pending";
   });
+  engine.regroupAfter = Boolean(opts.regroupAfter);
   engine.queue = [];
   for (const st of getState().statements) enqueue(st.id);
+  return getState().statements.length;
 }
 
 export function deleteStatement(id: string) {
@@ -90,7 +98,7 @@ export async function regroupThemes() {
   const res = await regroup(items, loadProducts());
   if (!res?.themes?.length) return false;
   mutate((st) => {
-    const themes = res.themes.map((t) => ({ id: newId(), name: t.name, description: t.description }));
+    const themes = res.themes.map((t) => ({ id: newId(), name: t.name, description: t.description, gen: st.generation ?? 0 }));
     const byInsight = new Map<string, string>();
     res.themes.forEach((t, idx) => t.insight_ids?.forEach((iid) => byInsight.set(iid, themes[idx].id)));
     const current = new Set(loadProducts().filter((p) => p.status === "current").map((p) => p.name));
@@ -122,6 +130,10 @@ async function run() {
       const id = engine.queue.shift()!;
       await processStatement(id);
     }
+    if (engine.regroupAfter) {
+      engine.regroupAfter = false;
+      await regroupThemes().catch((e) => console.error("[engine] regroup failed", e));
+    }
   } finally {
     engine.running = false;
   }
@@ -136,7 +148,8 @@ async function processStatement(id: string) {
   let error = "";
   for (let attempt = 0; attempt < 3 && !raw; attempt++) {
     try {
-      raw = await analyzeStatement(st.text, st, products, getState().themes.map((t) => t.name));
+      const themes = getState().themes.filter((t) => (t.gen ?? 0) === generation());
+      raw = await analyzeStatement(st.text, st, products, themes.map((t) => t.name));
     } catch (e) {
       error = e instanceof Error ? e.message : String(e);
       console.error(`[engine] analyze failed (attempt ${attempt + 1})`, error);
@@ -153,6 +166,7 @@ async function processStatement(id: string) {
     }
     s.insights = s.insights.filter((x) => x.statementId !== id);
     for (const r of raw) s.insights.push(toInsight(r, id, s, products));
+    pruneThemes(s);
     cur.status = "done";
     cur.error = undefined;
   });
@@ -160,9 +174,10 @@ async function processStatement(id: string) {
 
 function toInsight(r: RawInsight, statementId: string, s: ReturnType<typeof getState>, products: Product[]): Insight {
   // Theme: reuse by normalised name, otherwise create.
-  let theme = s.themes.find((t) => norm(t.name) === norm(r.theme));
+  const gen = s.generation ?? 0;
+  let theme = s.themes.find((t) => (t.gen ?? 0) === gen && norm(t.name) === norm(r.theme));
   if (!theme) {
-    theme = { id: newId(), name: r.theme.trim() };
+    theme = { id: newId(), name: r.theme.trim(), gen };
     s.themes.push(theme);
   }
   // Product: resolve against catalogue names + aliases, then against products already on the wall.
