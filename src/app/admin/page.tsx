@@ -1,0 +1,94 @@
+"use client";
+import { useEffect, useState } from "react";
+import { useLiveState } from "@/lib/useLiveState";
+
+export default function AdminPage() {
+  const state = useLiveState(2500);
+  const [token, setToken] = useState("");
+  const [msg, setMsg] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    try { setToken(localStorage.getItem("cv-admin-token") ?? ""); } catch { /* ignore */ }
+  }, []);
+  const saveToken = (t: string) => {
+    setToken(t);
+    try { localStorage.setItem("cv-admin-token", t); } catch { /* ignore */ }
+  };
+
+  async function act(action: string, extra: Record<string, unknown> = {}, confirmText?: string) {
+    if (confirmText && !confirm(confirmText)) return;
+    setBusy(true);
+    setMsg("");
+    try {
+      const res = await fetch("/api/admin", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-admin-token": token },
+        body: JSON.stringify({ action, ...extra }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+      setMsg(
+        action === "seed" ? `${json.added} exempel köade för analys.`
+        : action === "regroup" ? (json.ok ? "Teman omgrupperade." : "Omgruppering kräver AI-nyckel och minst en insikt.")
+        : "Klart.",
+      );
+    } catch (e) {
+      setMsg(`Fel: ${e instanceof Error ? e.message : e}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const exportUrl = (format: string) => `/api/export?format=${format}&token=${encodeURIComponent(token)}`;
+  const statements = state ? [...state.statements].sort((a, b) => b.createdAt.localeCompare(a.createdAt)) : [];
+
+  return (
+    <main className="page">
+      <h1>Admin</h1>
+      <div className="toolbar">
+        <label>
+          Admin-token{" "}
+          <input type="password" value={token} onChange={(e) => saveToken(e.target.value)} style={{ padding: 8, borderRadius: 8, border: "1px solid var(--border)" }} />
+        </label>
+        {state && (
+          <span>
+            {state.demoMode ? "Demo-läge (ingen AI-nyckel)" : `Modell: ${state.model}`} · {state.statements.length} röster · {state.insights.length} insikter ·{" "}
+            {state.themes.length} teman · kö: {state.queue}
+          </span>
+        )}
+      </div>
+      <div className="toolbar">
+        <button className="btn primary" disabled={busy} onClick={() => act("seed")}>Ladda exempel (Dagens Medicin)</button>
+        <button className="btn" disabled={busy} onClick={() => act("regroup")}>Gruppera om teman (AI)</button>
+        <button className="btn" disabled={busy} onClick={() => act("reanalyze", {}, "Analysera om alla röster från början?")}>Analysera om alla</button>
+        <a className="btn" href={exportUrl("csv")}>Exportera CSV</a>
+        <a className="btn" href={exportUrl("json")}>Exportera JSON</a>
+        <button className="btn danger" disabled={busy} onClick={() => act("reset", {}, "Radera ALLA röster och insikter?")}>Rensa allt</button>
+      </div>
+      {msg && <div>{msg}</div>}
+      <table>
+        <thead>
+          <tr><th>Röst</th><th>Avsändare</th><th>Insikter</th><th>Status</th><th /></tr>
+        </thead>
+        <tbody>
+          {statements.map((s) => (
+            <tr key={s.id}>
+              <td style={{ maxWidth: 460 }}>{s.text}</td>
+              <td>{[s.author, s.role].filter(Boolean).join(", ")}<div className="status">{s.source === "example" ? "exempel" : "kiosk"}</div></td>
+              <td>
+                {state!.insights.filter((i) => i.statementId === s.id).map((i) => (
+                  <div key={i.id} style={{ marginBottom: 6 }}>
+                    <span className={`pill ${i.productStatus}`}>{i.productStatus === "current" ? "B" : "F"}</span> <b>{i.product}</b>: {i.need}
+                  </div>
+                ))}
+              </td>
+              <td className={`status ${s.status}`} title={s.error}>{s.status}</td>
+              <td><button className="btn danger" disabled={busy} onClick={() => act("delete", { id: s.id }, "Ta bort rösten?")}>Ta bort</button></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </main>
+  );
+}

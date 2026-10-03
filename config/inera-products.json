@@ -1,0 +1,30 @@
+{
+  "_comment": "Product catalogue the AI maps statements to. Edit freely; mounted read-only into the container, so changes apply after `docker compose restart app`. 'current' = existing Inera product/service, 'future' = idea/concept seeds the AI may reuse. The AI may also invent new 'future' products. Verify names/descriptions against inera.se before the conference.",
+  "organisation": "Inera",
+  "products": [
+    { "name": "1177 på webben", "status": "current", "aliases": ["1177", "1177.se", "1177 Vårdguiden"], "description": "Nationell informations- och tjänsteplattform för invånare om hälsa och vård." },
+    { "name": "1177 e-tjänster", "status": "current", "aliases": ["inloggade tjänster", "1177 meddelanden", "webbtidbok"], "description": "Inloggade invånartjänster: meddelanden, tidbokning, ärenden, formulär och ombud för barn." },
+    { "name": "1177 Direkt", "status": "current", "aliases": ["digital vårdkontakt", "chatt", "videobesök"], "description": "Plattform för digitala vårdmöten (chatt, video, triage) som regioner använder i egen regi." },
+    { "name": "Journalen", "status": "current", "aliases": ["journal via nätet", "journalen på 1177"], "description": "Invånarens tillgång till sin egen journal och hälsodata via 1177." },
+    { "name": "Stöd och behandling", "status": "current", "aliases": ["internetbehandling", "iKBT", "digitala behandlingsprogram"], "description": "Plattform för digitala stöd- och behandlingsprogram, t.ex. internetbaserad KBT." },
+    { "name": "Rådgivningsstöd", "status": "current", "aliases": ["1177 på telefon", "telefonrådgivning", "triagestöd"], "description": "Medicinskt kunskapsstöd för sjuksköterskor i telefon- och digital rådgivning." },
+    { "name": "Nationell patientöversikt (NPÖ)", "status": "current", "aliases": ["NPÖ", "sammanhållen journalföring"], "description": "Behörig vårdpersonal kan ta del av journalinformation från andra vårdgivare." },
+    { "name": "Pascal", "status": "current", "aliases": ["dosdispensering", "läkemedelsordination"], "description": "Webbapplikation för ordination av dosdispenserade läkemedel och läkemedelslistor." },
+    { "name": "Intygstjänster", "status": "current", "aliases": ["Webcert", "Mina intyg", "Rehabstöd"], "description": "Digitala intyg från vården till invånare, Försäkringskassan och andra mottagare." },
+    { "name": "Säker digital kommunikation (SDK)", "status": "current", "aliases": ["SDK", "säker meddelandeöverföring"], "description": "Säker överföring av meddelanden och dokument mellan organisationer i vård och omsorg." },
+    { "name": "Nationella tjänsteplattformen", "status": "current", "aliases": ["tjänsteplattform", "integrationer", "tjänstekontrakt", "RIVTA"], "description": "Gemensam integrationsplattform och tjänstekontrakt för informationsutbyte mellan system." },
+    { "name": "Säkerhetstjänster", "status": "current", "aliases": ["spärr", "samtycke", "loggtjänst", "behörighet"], "description": "Spärr-, samtyckes-, logg- och behörighetstjänster för säker informationshantering." },
+    { "name": "SITHS e-legitimation", "status": "current", "aliases": ["SITHS", "identifiering personal", "inloggning vårdpersonal"], "description": "E-legitimation och identitetsintyg för medarbetare i vård och omsorg." },
+    { "name": "HSA katalogtjänst", "status": "current", "aliases": ["HSA", "katalogtjänst"], "description": "Nationell katalog över personal, enheter och funktioner i vård och omsorg." },
+    { "name": "Vårdhandboken", "status": "current", "aliases": ["kunskapsstöd omvårdnad"], "description": "Nationellt kunskapsstöd för vård- och omsorgspersonal." },
+    { "name": "Hjälpmedelstjänsten", "status": "current", "aliases": ["hjälpmedel", "välfärdsteknik"], "description": "Tjänst för upphandling och hantering av hjälpmedel för regioner och kommuner." },
+
+    { "name": "Digitalt ombud för vuxna i 1177", "status": "future", "description": "Låt en vuxen utse en närstående som digitalt ombud i 1177." },
+    { "name": "AI-stöd för dokumentation", "status": "future", "description": "Gemensam, granskad AI-tjänst som minskar administrativ börda i dokumentation." },
+    { "name": "Suverän AI-plattform för vården", "status": "future", "description": "Nationellt driven AI-infrastruktur som minskar beroendet av globala techjättar." },
+    { "name": "Patientens egen hälsodata (EHDS)", "status": "future", "description": "Invånarens samlade hälsodata, exportbar och delbar enligt EHDS." },
+    { "name": "Egen mätdata och egenvård i 1177", "status": "future", "description": "Invånare delar egna mätvärden och får digitalt egenvårdsstöd vid kronisk sjukdom." },
+    { "name": "Reservrutiner och redundans för nationella tjänster", "status": "future", "description": "Robust, kris- och cybersäker drift av nationella e-hälsotjänster." },
+    { "name": "Inloggning utan BankID", "status": "future", "description": "Alternativa, tillgängliga inloggningsmetoder för invånare utan BankID." }
+  ]
+}

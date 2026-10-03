@@ -1,0 +1,35 @@
+services:
+  app:
+    build: .
+    image: customer-voice
+    ports:
+      - "3000:3000"
+    env_file:
+      # Your local secrets (OpenAI token etc.). Create it from config/secrets.example.env.
+      - path: ./config/secrets.env
+        required: false
+    volumes:
+      # Edit the product catalogue without rebuilding (restart the app to apply).
+      - ./config/inera-products.json:/app/config/inera-products.json:ro
+      # Submitted voices + the AI-built tree survive restarts.
+      - voice-data:/app/data/state
+    environment:
+      DATA_DIR: /app/data/state
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  # Optional local LLM: `docker compose --profile ollama up`
+  # then set OPENAI_BASE_URL=http://ollama:11434/v1 and OPENAI_MODEL=<model> in config/secrets.env
+  # and pull a model once: docker compose exec ollama ollama pull qwen2.5:7b
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["ollama"]
+    volumes:
+      - ollama-models:/root/.ollama
+    ports:
+      - "11434:11434"
+
+volumes:
+  voice-data:
+  ollama-models:

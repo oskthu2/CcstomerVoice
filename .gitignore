@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+.env*
+!.env.example
+
+# Local secrets — never commit
+config/secrets.env
+
+# Runtime data written by the app (seed data stays tracked)
+data/*
+!data/seed/

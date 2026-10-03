@@ -1,0 +1,27 @@
+{
+  "name": "customer-voice",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Voice of the Customer kiosk + live mind map wall that maps attendee statements to current and future Inera products.",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0",
+    "@xyflow/react": "^12.12.0",
+    "next": "^15.5.27",
+    "openai": "^6.0.0",
+    "qrcode.react": "^4.2.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "typescript": "^5.9.0"
+  }
+}

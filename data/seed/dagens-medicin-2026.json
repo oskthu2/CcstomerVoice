@@ -1,0 +1,320 @@
+{
+  "source": "Dagens Medicin, \"Vårdens digitala vägval – 60 röster inför valet 2026\", publicerad 4 maj 2026",
+  "statements": [
+    {
+      "author": "Martin Lindman",
+      "role": "vd Doktor.se",
+      "text": "Att Sverige får ett tydligt nationellt ramverk för digital vård som möjliggör utveckling – inte bromsar den. Ambitionen att vara världsledande har varit hög, men politiska beslut har i praktiken hämmat digitalisering. Kostnaden för digital vård motsvarar endast cirka 0,2 procent av vårdens totala kostnader, samt att infrastruktur och innovation har drivits av privata aktörer."
+    },
+    {
+      "author": "Andreas Thörneby",
+      "role": "allmänläkare och vårdcentralsentreprenör",
+      "text": "Frågan som borde vara viktigast är hur vi lämnar dagens okritiska gynnande av digitala projekt och tjänster enligt principen ’mer och snabbare är automatiskt bättre’. Det har fragmenterat vården och styrt resurser mot våra minst utsatta grupper. Vi skulle behöva en mer ansvarsfull och rationell strategi, där den professionella relationen och omdömet sätts före tekniken. Teknik ska vara ett stöd, inte ett självändamål."
+    },
+    {
+      "author": "Henrik Schildt",
+      "role": "it-direktör i Region Östergötland",
+      "text": "Det borde vara att skapa förutsättningar för en ändamålsenlig och säker delning av hälsodata över huvudmannagränser, för både primär- och sekundäranvändning. Skulle även ta bort (den inte så smarta) idén om ett nationellt journalsystem från agendan. Även synen på AI som en välsignelse eller hot kommer säkert att diskuteras. Här spelar dock det osäkra omvärldsläget in då de flesta AI-tillämpningar är beroenden av amerikanska techjättar, vilket lyft upp frågan kring digital suveränitet på agendan."
+    },
+    {
+      "author": "Caroline Erkers",
+      "role": "vd Svea KBT",
+      "text": "Jag ser en stor risk i att fokus ligger på effektivitet och byråkrati med många regler där kvaliteten och det personliga mötet glöms bort. Självklart ska patienten känna sig trygg och säkrad men med alla regler blir det svårare för vårdgivare att stötta på det personliga plan som jag anser att vård behöver göra. Med psykisk ohälsa som växande problem tror jag att digitala möten, internetprogram och kortare tid med patienten såklart kan göra vården lättillgänglig men också urholkad och mindre kvalitativ."
+    },
+    {
+      "author": "Malin Fredgardh Huber",
+      "role": "affärsområdeschef för Attendo Skandinavien",
+      "text": "Den viktigaste digitaliseringsfrågan just nu är hur vi skapar förutsättningar för innovation i vård och omsorg. I dag bromsas utvecklingen ofta av ersättningsmodeller, styrning och regelverk. Rätt använd kan nya arbetssätt och digitalisering frigöra tid för medarbetare, höja kvaliteten och stärka tryggheten för både individ och närstående. Men vi behöver en tydligare nationell och kommunal signal om att välfärdsteknik är prioriterad."
+    },
+    {
+      "author": "Eva Helmersson",
+      "role": "förbundsordförande Neuroförbundet",
+      "text": "En hög andel av våra medlemmar är positiva till användningen av hälso- och sjukvårdstjänster på internet. Samtidigt har våra medlemmar neurologiska diagnoser och ofta komplexa vårdbehov. Där är digitaliseringen inte är lika relevant utan att vårdbehovet kräver besök på exempelvis specialistmottagningar. I vår senaste medlemsenkät konstaterar vi att fler i dag är missnöjda med den digitala vård de får för sina neurologiska diagnoser/symtom än när vi genomförde medlemsenkäten för två år sedan."
+    },
+    {
+      "author": "Lotta Håkansson",
+      "role": "förbundsordförande Reumatikerförbundet",
+      "text": "Det som har varit centralt för Reumatikerförbundet och många andra patientorganisationer under lång tid är att säkerställa att patienten har tillgång till sin egen hälsodata. Patienten ska stå i centrum och kunna dra nytta av digitaliseringen. Men det är också många som inte klarar av att hantera digitala vårdkontakter, utan behöver stöd från närstående. Vi vill att vuxna ska kunna utses till digitala ombud för andra vuxna inom sjukvården. Det skulle öka tryggheten för många."
+    },
+    {
+      "author": "Sara Lundsten",
+      "role": "iva-sjuksköterska och doktorand Umeå universitet",
+      "text": "Som iva-sjuksköterska skulle jag vilja svara att det viktigaste kommer att vara att satsa digitaliseringen på det som ’fotfolket’ ute i patientvården verkligen har behov av och som ger verklig effekt på kvalitet och arbetsmiljö. Beslutsfattare står många gånger långt från ”vårdgolvet” och satsar hellre på lätta eller roliga projekt istället. Min förhoppning är ett närmare samarbete, beslutsfattare, tekniksektor och klinisk personal, först då kommer vi få positiva digitaliserings-effekter."
+    },
+    {
+      "author": "Britta Wallgren",
+      "role": "vd på Capio Sverige",
+      "text": "Det viktigaste inför valet 2026 är att Sverige levererar på den nationella digitala infrastrukturen. Vi behöver sluta diskutera mötesformer och ge digital vård en självklar plats i alla avtal. AI måste användas för att avlasta personal och öka kapaciteten – samtidigt som vi säkerställer en etisk, ansvarsfull utveckling som inte gör vården beroende av globala techjättar."
+    },
+    {
+      "author": "Johan Wallér",
+      "role": "vd Sveriges Apoteksförening",
+      "text": "Den viktigaste frågan blir hur vi säkrar robusthet och redundans i vårdens digitala infrastruktur. Vården och apoteken är i dag beroende av nationella system som oftast fungerar väl – men som också är sårbara vid cyberangrepp, driftstörningar eller kris. Utan motståndskraftiga system riskerar både patientsäkerhet och läkemedelsförsörjning att slås ut."
+    },
+    {
+      "author": "Lina Nordquist (L)",
+      "role": "gruppledare i riksdagen och ledamot i socialutskottet",
+      "text": "VAD och HUR är de avgörande frågorna. AI och annan digital teknologi behöver införas stabilt och faktabaserat, för allt från diagnosstöd och riskbedömningar till klok schemaläggning. Takten, turordningen och fortbildningskraven behöver komma från kliniken, eftersom digitalisering av moment annars kan stjälpa. Det är inget annat än pinsamt att digitala vårdverktyg fortfarande kan innebära hinder och risk, snarare än stöd i yrkespersoners arbete."
+    },
+    {
+      "author": "Cecilia Winberg",
+      "role": "förbundsordförande för Fysioterapeuterna",
+      "text": "Frågan om digitala vårdens roll och funktion i hälso- och sjukvården tror vi kan bli en valfråga. Det finns många lager i denna och det finns också beslut som behöver fattas på nationell nivå. En utgångspunkt kan vara vad vi ska använda våra gemensamma resurser till och en annan om hur prioriteringar ska göras? Är vården idag behovsstyrd? Ges mest vård till dem med störst behov. Det ges olika förutsättningar för digital vård och fysisk vård vilket är problematiskt. Viss digital vård ersätts medan annan som den som fysioterapeuter på LOF vill bedriva inte ens ersätts."
+    },
+    {
+      "author": "Katarina Wettin",
+      "role": "chief medical operations officer på Capio",
+      "text": "Jag hoppas att patientbehoven blir styrande inför valet: Primärvården ska vara mer tillgänglig och hänga ihop bättre. Digitaliseringen ska bidra till ökad kontinuitet, mer jämlik och patientsäker vård. Politiker ställ krav på: upphandling av system där information och patienter kan röra sig fritt mellan olika lösningar, både digital och fysisk närvaro i alla vårdavtal och våga avskaffa stuprörslösningar som den digitala utomlänsersättningen."
+    },
+    {
+      "author": "Anders Åkesson",
+      "role": "förbundsordförande Riksförbundet Hjärt Lung",
+      "text": "Som företrädare för hjärt-, kärl- och lungpatienter är vårt budskap enkelt: digitalisering måste ha fokus på enkelhet för användaren och att leda till verklig patientnytta. I dag är journalinformationen svårtillgänglig och följer inte patienten genom vårdkedjan. Det skapar otrygghet och risker, särskilt vid kronisk sjukdom. Patienter behöver starkare stöd i egenvård via digitala verktyg. Säkerställd interoperabilitet är avgörande för en tryggare och bättre vård."
+    },
+    {
+      "author": "Nathalie Boulas Nilsson",
+      "role": "vd Humana",
+      "text": "Att använda digitalisering och AI för att minska administrationen för medarbetarna i vård och omsorg. Färre ska ta hand om fler – då måste tekniken avlasta, inte belasta. Rätt använd kan den frigöra tid från dokumentation och manuella moment, så att fler händer finns där de behövs mest: i mötet med brukare, boende, patienter — med människor."
+    },
+    {
+      "author": "Niclas Snygg",
+      "role": "verksamhetschef för hemvård och hälsa i Lunds kommun",
+      "text": "Den viktigaste frågan är hur digitala verktyg kan stärka äldre att själva styra sin hälsa och vardag, med fokus på självständighet och trygghet. Vi inom kommunen vill leda utvecklingen av smarta, lättillgängliga lösningar som förenklar vården, ökar livskvaliteten och ger våra äldre ett aktivt och meningsfullt liv."
+    },
+    {
+      "author": "Anna Mannfalk (M)",
+      "role": "regionråd i Skåne, och ordförande i hälso- och sjukvårdsnämnden",
+      "text": "Medborgarnas förväntningar på digitala tjänster i vården är mycket större än vad svensk sjukvård levererar. Det gäller både patientkommunikation och digitala vårdtjänster. Mitt mål är digitala tjänster av hög kvalitet till rätt patienter utan fusk."
+    },
+    {
+      "author": "Lena Strömberg",
+      "role": "vd och programdirektör Medtech4Health",
+      "text": "Den viktigaste digitaliseringsfrågan är inte fler pilotprojekt – utan system för säkert breddinförande av medicinteknik. Sverige behöver bygga verklig systemförmåga för att ta digitala medicintekniska lösningar från test till faktisk användning i vård och omsorg. Det kräver ett tydligt ansvar, interoperabel hälsodata och ersättningsmodeller som belönar nytta, inte stuprör. För detta krävs rätt teknik, rätt kompetens och hållbara investeringar."
+    },
+    {
+      "author": "Ina Caesar",
+      "role": "Institutet för framtidsstudie",
+      "text": "Den viktigaste frågan i valet 2026 hoppas jag blir krav på genomförande. Att i övrigt få en debatt över hur vården ska digitaliseras tror jag är utsiktslöst. Vem är emot? Var är konflikten? I åratal har vi utrett och diskuterat medan andra länder har implementerat. Draghi-rapporten är tydlig: produktiviteten måste öka och vår saktfärdighet har en hög alternativkostnad. Jag hoppas att valet blir ett startskott för ett politiskt ledarskap som ställer krav på färre rundabordssamtal och mer action."
+    },
+    {
+      "author": "Sofia Wallström",
+      "role": "vd Lif",
+      "text": "En jämlik och sammankopplad digital vård som bygger på interoperabilitet och säker och effektiv hantering av hälsodata. IT-system måste kunna utbyta information så att data följer patienten. För bättre produktivitet och kvalitet behöver hälsodata delas säkert mellan kommuner, regioner och olika vårdnivåer och möjliggöra sekundäranvändning för forskning, innovation och regulatoriska ändamål. Interoperabla system stärker vårdens kvalitet och Sveriges konkurrenskraft som life science-nation."
+    },
+    {
+      "author": "Per Örninge",
+      "role": "ordförande Flisa (Föreningen för ledningsansvariga inom svensk ambulanssjukvård)",
+      "text": "Jag hoppas att en viktig fråga blir att de som behöver vårdinformation för att ge god och säker vård ska kunna dela relevant information digitalt i realtid mellan sig, detta alarmerings- och ambulanssjukvård inkluderat. Ett samspel mellan teknik och juridik. Det förväntar sig patienterna och det behöver medarbetarna. Det kan även i vissa fall bidra till en säkrare arbetsmiljö. Digitaliseringen i sig lagar inga dåligt designade processer, men är en av förutsättningarna för kvalitetsstyrning."
+    },
+    {
+      "author": "Michel Laji",
+      "role": "AI-utvecklare",
+      "text": "Kompetenskrav för AI i vården. Vi validerar AI-systemen noggrant innan de implementeras – men ställer inga motsvarande krav på läkarna som ska använda dem. Det skapar en patientsäkerhetsrisk. Frågan inför valet måste bli: hur säkerställer vi att de som använder, upphandlar och utvärderar AI-system har verifierbar kompetens? Utan det är läkarens ansvar bara en papperskonstruktion."
+    },
+    {
+      "author": "Emilie Orring (M)",
+      "role": "oppositionsregionråd i Uppsala",
+      "text": "Konkreta lösningar som skapar verkligt värde för patienter och medarbetare. Det är valets viktigaste digitaliseringsfråga. Alternativen står mellan moderater, som jag själv, som vill driva ett mer aktivt arbete med proaktiv samtyckeshantering och informationsflöden som hänger ihop och fungerar i människors vardag – och de politiker som hoppas att problemen löser sig av sig själva utan aktiva målsättningar och politiskt grovjobb. Vilka som får väljarnas förtroende i höst avgör om Sverige framtidssäkras eller inte."
+    },
+    {
+      "author": "Marcus Dahbo",
+      "role": "vd för vård- och omsorgsföretaget Forenede Care",
+      "text": "För mig är den viktigaste digitaliseringsfrågan inför valet 2026 hur vi får systemen att fungera tillsammans mellan kommuner, utförare och anhöriga. Digitalisering ska skapa insyn, stärka tilliten och frigöra tid för omsorg. När vi samverkar bättre kan varje skattekrona användas klokare och äldre få en trygg, sammanhållen omsorg, oavsett driftform."
+    },
+    {
+      "author": "Andreas Stomby",
+      "role": "ordförande Svensk förening för allmänmedicin (Sfam)",
+      "text": "Valets viktigaste digitaliseringsfråga 2026 är för Sfam hur AI och nationella initiativ som NDI och EHDS omsätts i klinisk verklighet, framförallt i primärvården, utan att öka den administrativa bördan. Ny teknik måste ge konkret nytta för patienter och vårdpersonalen i kärnprocesser som t.ex. dokumentation och beslutsstöd – inte skapa nya inmatningskrav. Staten behöver ta större ansvar för en likvärdig digital omställning i alla regioner, samtidigt som patientsäkerhet och professionell autonomi säkras."
+    },
+    {
+      "author": "Lina Ärlebrant",
+      "role": "forskare inom videokonsultationer i vården",
+      "text": "För att fortsätta utvecklingen är det viktigast att förtroendet för digitaliseringen stärks, bland både patienter och vårdprofession. För det behöver resurser tillsättas för att: öka tillgången till digital service för alla, oavsett bostadsort, språk eller funktionsvariation, öka tillförlitligheten och teknisk support i hela vårdkedjan, samt öka kunskapen genom att utbilda användarna. Utan en grund av förtroende för digitaliseringen kommer vi inte framåt."
+    },
+    {
+      "author": "Sabina Joyau",
+      "role": "chef för äldreomsorgsfrågor hos SKR",
+      "text": "Digitalisering inom vård och omsorg är ingen quick fix. Det kräver tålamod och långsiktiga investeringar. Kommunernas behov av budgetbalans krockar ofta med digitala satsningar som initialt ökar kostnaderna. Vi kan inte minska personal när omvårdnadsbehoven växer – därför behövs ett uthålligt skifte i arbetssätt där tekniken frigör tid och stärker kvaliteten."
+    },
+    {
+      "author": "Jonas Lindberg (V)",
+      "role": "sjuksköterska och oppositionsregionråd i Stockholm",
+      "text": "Att avskaffa den digitala utomlänsersättningen är en prioriterad fråga för Vänsterpartiet. När det gäller nya digitala system, måste vårdpersonal och patienter involveras på riktigt när dessa system tas fram – så att de faktiskt förbättrar och avlastar, istället för att bli ännu en börda, vilket vi tyvärr har sett gång på gång de senaste åren. Digitalisering är inget universalmedel för sjukvårdens strukturella problem. Det är kontinuitet i vården som är en av de mest effektiva kvalitetsfaktorerna vi har. Ett fokus på digitalisering får aldrig tränga undan det."
+    },
+    {
+      "author": "Sofia Palmquist",
+      "role": "vd Aleris",
+      "text": "Den viktigaste frågan är patientens rätt till sin egen hälsodata. I dag är informationen splittrad och inlåst i regionala system. Data måste följa och stötta individens behov genom hela vårdkedjan. Med gemensamma nationella standarder, öppen redovisning av väntetider och tillgänglighet samt reell möjlighet att flytta sin remiss och en infrastruktur att söka vård i hela landet kan digitaliseringen stärka patientinflytande, patientsäkerhet och skapa ett mer robust och jämlikt sjukvårdssystem."
+    },
+    {
+      "author": "Carina Olson",
+      "role": "vd Praktikertjänst",
+      "text": "Om hur digitala lösningar kan bidra till ökad tillgänglighet, förbättrad kontinuitet och mer tid för patientmöten. Exempelvis att regionerna kravställer digifysiska vårdmodeller, och att lösningarna får vara teknikneutrala. Regionernas skyldighet att ersätta digital utomlänsvård enligt utomlänstaxan behöver också slopas. Systemet innebär i praktiken två olika ersättningsmodeller i primärvården. Det skapar brister i samordning och kontinuitet samt onödiga extra kostnader."
+    },
+    {
+      "author": "Carl-Johan Schiller (KD)",
+      "role": "regionråd Stockholm",
+      "text": "Den viktigaste frågan om vårdens digitalisering i valet 2026 är att frigöra tid för vårdens medarbetare genom patientsäkra, tillförlitliga och användarvänliga digitala verktyg som minskar den administrativa bördan. Det skapar mer tid för mötet mellan vårdpersonal och patienter. Samtidigt krävs sammanhållna journalsystem som fungerar mellan vårdens aktörer och stärker informationssäkerheten. Rätt sorts verktyg är också nödvändiga för att öka vårdens tillgänglighet för patienterna och för att de ska kunna vara delaktiga i sin egen vård."
+    },
+    {
+      "author": "Patrik Sundström",
+      "role": "vd Inera",
+      "text": "Den fråga som borde vara viktigast är hur ny teknik kan komma i praktisk användning för att påskynda förflyttningen från reaktiv vård till proaktiv hälsa. Det handlar om en investering i hela befolkningen för att göra samhället starkare och människor friskare samtidigt som välfärdens utmaningar möts, ny kunskap omsätts snabbare och tillväxt i svensk life science stimuleras. Samtalen borde handla om vilka partsgemensamma strategier, långsiktiga investeringar, nya samarbeten och lagstiftningsförändringar Sverige ska realisera för att gå från ord till handling."
+    },
+    {
+      "author": "Tim Nilsson",
+      "role": "ordförande Sveriges läkarförbund Student",
+      "text": "Jag skulle säga att mycket talar för att vår digitala arbetsmiljö hamnar i centrum. Under flera år har det kommit ett antal larmrapporter, bland annat från oss på Läkarförbundet, som visat hur bristande it-system skapar stress, ökad administration och minskar läkarnas tid med patienterna. Jag har träffat många läkare som vittnar om långsamma journalsystem, dubbelregistreringar och bristande samordning mellan olika digitala plattformar och hur detta stjäl betydande tid från det kliniska arbetet. Dåliga it-system påverkar inte bara vår arbetsbelastning utan också vårdens totala kapacitet."
+    },
+    {
+      "author": "Björn Arvidsson",
+      "role": "forsknings- och innovationsdirektör hos Region Uppsala",
+      "text": "Vi borde prata mer om att när vården blir mer digital blir det lätt att styra på det som är enkelt att mäta: antal besök, tider, koder och produktion. Risken är däremot att det som betyder mest men är svårare att räkna trängs undan, såsom kontinuitet, tillgänglighet, hur sammanhållet systemet är samt omsorg om komplexa patienter. Då kommer siffrorna se bra ut, men vi missar vad som är viktigt."
+    },
+    {
+      "author": "Daniel Forslund",
+      "role": "utvecklingsansvarig Vårdföretagarna",
+      "text": "Jag hoppas på att samtliga partier kommer tävla om att realisera det påbörjade arbetet med en nationell digital infrastruktur för vården. Nu krävs politisk beslutskraft för att sätta tydliga, transparenta och tvingande principer för hur information ska delas digitalt mellan alla olika journalsystem, applikationer och vårdgivare. Detta borde vara mer politiskt prioriterat, då det löser konkreta patientsäkerhetsrisker, dagliga arbetsmiljöproblem och möjliggör ny medicinsk utveckling."
+    },
+    {
+      "author": "Minna Sandberg",
+      "role": "vd för Swenode AI",
+      "text": "En avgörande fråga i valet 2026 blir hur digitaliseringen gör vården mer jämlik, trygg och tillgänglig i hela landet. Integritet och datasäkerhet måste garanteras. Samtidigt kan AI möjliggöra precisionshälsa genom bättre diagnostik, individanpassad behandling och tidig upptäckt av sjukdom. Tekniken ska korta köer och stärka kvaliteten – utan att ersätta den mänskliga kontakten."
+    },
+    {
+      "author": "Ida Kåhlin",
+      "role": "ordförande för Sveriges Arbetsterapeuter",
+      "text": "Den viktigaste digitaliseringsfrågan inför valet 2026 är om vårdens digitalisering verkligen används för att stärka jämlik tillgång, kvalitet och professionellt handlingsutrymme, eller om den skapar nya hinder? Digitala system måste vara tillgängliga för alla, även för personer utan BankID, och samtidigt stödja effektivt arbete i vården. Regelverk kring sekretess och GDPR behöver självklart tillämpas och möjliggöra säker informationsdelning och innovation, men inte hindra samverkan och god vård."
+    },
+    {
+      "author": "Rami Avidan",
+      "role": "vd för Cambio Health Care Systems AB",
+      "text": "Den viktigaste frågan blir att skapa en sammanhållen och säker digital infrastruktur för vården. Nya omvärldskrav gör robust datahantering och interoperabilitet avgörande. För att personal och patienter ska få full nytta av modern teknik krävs tydliga politiska besked om den nationella digitala infrastrukturen. Långvarig osäkerhet riskerar att bromsa utvecklingen."
+    },
+    {
+      "author": "Towa Jexmark",
+      "role": "vd för Tiohundra",
+      "text": "Vi behöver övervinna de hinder som fortfarande bromsar fortsatt digitalisering och automatisering i vården. Juridik, regelverk och höga investeringskostnader fortsätter att vara i vägen för utvecklingen, som förstås måste ske på ett såväl patient- som cybersäkert sätt. Det är bråttom – vi behöver komma framåt snabbare om färre ska kunna ta hand om fler i vård och omsorg kommande decennier."
+    },
+    {
+      "author": "Göran Härdelin",
+      "role": "ST-läkare i allmänmedicin och civilingenjör i industriell ekonomi",
+      "text": "En gemensam informations- och säkerhetsmodell! Det innebär att varje verksamhet kan använda sina egna verktyg, men dela standardiserad och säker data vid behov. Det står i skarp kontrast till kravet på ett gemensamt system för alla – något som riskerar leverantörsberoende, höga kostnader och långsamma processer. En gemensam informations- och säkerhetsmodell blir ännu viktigare i AI-eran."
+    },
+    {
+      "author": "Ulrika Årehed Kågström",
+      "role": "Cancerfondens generalsekreterare",
+      "text": "Den viktigaste frågan är hur vi förvaltar den unika potentialen som Sverige har inom hälsodata, med stark forskning, hög digital mognad och världsledande register. Används detta fullt ut kan vi ge mer individanpassad vård, korta tiden från forskningsgenombrott till patientnytta och stärka vår ställning som tongivande life science nation. Men då krävs det krafttag för fungerande infrastruktur, rätt kompetens, ändamålsenliga regelverk och en långsiktig politisk ambition inom området."
+    },
+    {
+      "author": "Camilla Friberg (S)",
+      "role": "regionråd Norrbotten",
+      "text": "Den viktigaste frågan kommer att vara patienternas möjlighet att enkelt komma i kontakt med sin hälsocentral eller vårdinrättning via digitala ingångar utan att behöva vänta i telefonkö eller kontakta vården en viss bestämd tidpunkt. I mitt län som utgör 25 procent av landets yta och har 2,5 procent av dess befolkning är likvärdighet och tillgänglighet ständigt närvarande frågor och där digitalisering är en viktig möjliggörare för att till exempel kunna ha läkarkonsultationer på distans."
+    },
+    {
+      "author": "Sarah Wamala Andersson",
+      "role": "professor i hälso- och välfärdsteknik vid Mälardalens universitet",
+      "text": "Använder vi digitalisering strategiskt för bättre och mer jämlik hälsa, eller driver vi teknikutveckling utan tydliga effektkrav? Digitala lösningar kan förbättra diagnostik, triagering, riskbedömning och uppföljning. Men utan en nationell, evidensbaserad strategi riskerar miljardinvesteringar att sakna mätbar patientnytta och jämlikhetseffekt. Det avgörande är inte digitaliseringens hastighet, utan dess träffsäkerhet: för vem den fungerar och vilka hälsoutfall förbättras. God och jämlik hälsa i befolkningen är en grundförutsättning för ett hållbart samhälle."
+    },
+    {
+      "author": "Lukas Saari",
+      "role": "vd & medgrundare Tandem Health",
+      "text": "Utifrån erfarenheter av att införa den AI-lösning som används allra bredast inom svensk vård, ser jag två kritiska möjligheter för att accelerera innovation: 1) Skapa regulatorisk tydlighet genom en central expertaktör som utför certifieringar som accepteras nationellt. Alla vill göra rätt, men det är otydligt vad rätt är. 2) Införa krav på öppna standardiserade API:er för datatillgång. Sverige är världsledande på datainsamling, men den är inlåst i olika system och används därför ej."
+    },
+    {
+      "author": "Anna-Lena Danielsson (S)",
+      "role": "regionråd Västerbotten",
+      "text": "AI i vården – hur kan AI användas för att avlasta vårdpersonalen från administrativa uppgifter, bedömningsstöd med mera. Ökad digitalisering för en ökad tillgänglighet – hur kan digitaliseringen användas så att våra patienter upplever att tillgängligheten har ökat."
+    },
+    {
+      "author": "Fredrik Meurling",
+      "role": "vd för Yazen",
+      "text": "Digitaliseringens viktigaste fråga 2026 blir hur vi säkrar jämlik, långsiktig vård för kroniska sjukdomar. När övervikt och obesitas ökar behöver vården nya arbetssätt som kombinerar medicinsk behandling, livsstilsstöd och kontinuerlig uppföljning. Rätt använd kan digital vård minska klyftor, stärka patientens egenmakt och frigöra resurser i den offentliga vården, men då krävs tydligt ansvar och integration i vårdsystemet."
+    },
+    {
+      "author": "Jenny Wibacke",
+      "role": "ordförande för Ledarna inom vård, omsorg och socialt arbete (Livo)",
+      "text": "Den viktigaste digitaliseringsfrågan i valet 2026 för chefer i vård och omsorg blir vem som ska äga och styra Sveriges nationella digitala infrastruktur – i praktiken det gemensamma journalsystemet. För chefer handlar detta om att få tydliga roller, fungerande system, säkrare datadelning och bättre förutsättningar att leda digitaliseringen i praktiken. Det behöver också bli lättare för chefer att leda och testa nya digitala arbetsformer."
+    },
+    {
+      "author": "Malin Ragnegård",
+      "role": "ordförande för Kommunal",
+      "text": "Det måste finnas långsiktiga resurser som ger medarbetarna förutsättningar att både lära och dela kunskap med varandra, och en säker hantering och analys av insamlade patientdata. Det ställer krav på en bra arbetsmiljö med samarbeten och kollegialt lärande som synliggör olika professioner och arbetsuppgifter. Vårdens digitalisering kräver också ett ledarskap där medarbetarna har inflytande och delaktighet, kan påverka design och göra anpassningar för att kunna ge patienterna bästa möjliga vård med stöd av digitala lösningar."
+    },
+    {
+      "author": "Sandra Ivanovic Rubin (MP)",
+      "role": "ordförande i Region Stockholms psykiatriutskott",
+      "text": "Digitaliseringen kan öka tillgängligheten och kontinuiteten i vården, men ökad digitalisering innebär samtidigt en risk för ett digitalt utanförskap – bland annat för äldre och personer med vissa typer av funktionsnedsättning. Därför är tillgängliga och inkluderande system, för både patienter och vårdpersonal, avgörande. Även AI-frågan är högaktuell, hur kan vi nyttja AI inom ett klokt och säkert sätt."
+    },
+    {
+      "author": "Nasim Bergman Farrokhnia",
+      "role": "ordförande för E-hälsoläkarföreningen",
+      "text": "Hur omsätter vi den nya AI-strategin till verklig nytta för patienterna – med jämlik tillgång, personanpassad prevention och kortare köer – och genom tydlig styrning och incitament för skalbar teknikanammande? Som dessutom skulle stärka Sveriges konkurrenskraft. Svensk vård brottas med personalkriser och fragmenterade system, men AI kan både avlasta och stärka. Nyckeln är blir alltså ”hur” få till det? Nationell färdplan med tydliga incitament och uppföljning för governance av AI-innovation. Etisk dataanvändning för prevention, inte bara administration. Jämlika lösningar för stad och landsbygd. Utan styrning blir det tomma ord – partierna måste konkretisera! Ser verkligen fram emot panelen i samband med konferensens öppnande."
+    },
+    {
+      "author": "Caroline Hällsjö Sander",
+      "role": "sjukhusdirektör Danderyds sjukhus",
+      "text": "För att skapa mer tid för det patientnära arbetet måste digitaliseringstakten öka. Det handlar om att införa mer robotisering, automatisering och AI-teknik. Idag finns potential att effektivisera genom förenkling av arbetssätt och administrativa processer. Dessutom kan vi bli ännu bättre på att använda data för att styra produktions- och kapacitetsplanering, i syfte att öka tillgängligheten i vården."
+    },
+    {
+      "author": "Kristina Taylor",
+      "role": "förbundsordförande Psykologförbundet",
+      "text": "Hur vi kan skapa en patientsäker och jämlik digital vård – och där psykologer och andra professioner är med och utformar systemen och styr utvecklingen. Digitalisering är inte bara är en teknisk fråga utan även en professionsfråga. Psykologer behöver vara med och ta fram digital evidensbaserad psykologisk behandling som värnar patientens integritet. Och arbetsgivare måste skapa rätt förutsättningar för vårdpersonalen att arbeta etiskt med digitala lösningar – annars äventyras såväl vårdkvalitet, patientsäkerhet som arbetsmiljön. Viktigt också att de digitala vårdformerna, med professionell förankring, följs upp."
+    },
+    {
+      "author": "Anders Westerholm",
+      "role": "vd Meliva Sverige",
+      "text": "En mänsklig, lokal och hållbar vård är fundamentet. Då blir den viktigaste frågan hur vi säkerställer att digitalisering och AI inte blir ett självändamål, utan aktivt stöder kontinuitet och tillgång till vård samtidigt som tid frigörs för professionen. För detta måste regelverk anpassas till teknikutvecklingen för att säkra jämlik, högkvalitativ och en sammanhållen vård. Och med fler praktiska tillämpningar kommer även frågor om datasäkerhet samt reglering av AI bli allt viktigare."
+    },
+    {
+      "author": "Aida Hadžialić (S)",
+      "role": "regionstyrelsens ordförande Stockholm",
+      "text": "För det första kommer AI ha en ny starkare roll. Tillsammans med digitaliseringen behöver vi se till att det sker på patienterna och vårdpersonalens villkor och att de får vara delaktiga i utvecklingen samt med respekt för integriteten. Det måste alltid vara vården som är utgångspunkten, inte tekniken i sig eller andra intressen. Därtill menar jag att vi också behöver stärka vår rådighet och ha mer robusta digitala system, inte minst journalsystem, i en orolig omvärld."
+    },
+    {
+      "author": "Anna-Lena Hogerud (S)",
+      "role": "ordförande SKR:s sjukvårdsdelegation",
+      "text": "Digital vård ska göra vården mer tillgänglig och jämlik – inte mer komplicerad. Digitaliseringen ska göra det enklare, inte krångligare, för vårdpersonal och för alla patienter – oavsett digital vana. För att lyckas krävs både fungerande system och en lagstiftning som hänger med. De kommande årens viktigaste arbete handlar om att stärka den gemensamma digitala infrastrukturen och möjliggöra säker delning av hälsodata. Här ser jag särskilt behov av större fokus på användning av sekundärdata, så att vi verkligen kan stärka svensk forskning och utveckla vården med stöd av bästa tillgängliga kunskap."
+    },
+    {
+      "author": "Nicklas Mårtensson",
+      "role": "ordförande för Funktionsrätt Sverige",
+      "text": "Den viktigaste frågan i valet 2026 är att vårdens digitalisering faktiskt stärker jämlik tillgång till hälsa. När hälsodata tillgängliggörs och vårdkontakt sker via appar och AI måste lösningarna vara begripliga, tillgängliga och säkra. Bristerna i 1177:s första chattbot visade hur snabbt tillit och jämlikhet kan undergrävas. Personer med funktionsnedsättning och företrädare för patienter måste vara med och utforma lösningarna."
+    },
+    {
+      "author": "Marie Morell (M)",
+      "role": "regionstyrelsens ordförande i Östergötland",
+      "text": "Tyvärr har mycket den senaste kommit att handla om ersättningsmodeller och ekonomi när vi pratar om digitalisering. Det som borde vara den viktigast frågan är hur vi på ett bättre sätt kan använda olika digitala tjänster och AI i hela vården för att utnyttja den gränslöshet och möjlighet till en mer jämlik vård, med minskad administration, höjd kvalitet genom AI mm som digitala tjänster och funktioner faktiskt innebär."
+    },
+    {
+      "author": "Tobias Perdahl",
+      "role": "Co-CEO Platform24",
+      "text": "Vi ser att AI skapar stort värde – men det viktiga är ju om patienterna i större utsträckning kommer fram digitalt och om de prioriteras efter medicinskt behov eller efter plats i telefonkön. Och varför har regionerna fortfarande ensiffrig andel digitala besök när privata aktörer når över 30 %? Vi behöver ersättningsmodeller som styr mot effektivitet och rätt vårdnivå, det saknas ofta incitament att genom smarta arbetssätt försöka undvika onödiga vårdbesök, framförallt om bara besök räknas."
+    },
+    {
+      "author": "Fredrik Jonsson",
+      "role": "chefläkare hos SOS Alarm",
+      "text": "Den viktigaste digitaliseringsfrågan i valet 2026 är att skapa en nationellt samordnad digital infrastruktur. Utan gemensamma standarder och interoperabla system fortsätter vården att vara fragmenterad, ineffektiv och ojämlik. En sammanhållen digital grund är avgörande för patientsäkerhet, tillgänglighet och en hållbar arbetsmiljö."
+    },
+    {
+      "author": "Sineva Ribeiro",
+      "role": "ordförande Vårdförbundet",
+      "text": "Digitalisering är viktigt, men 2026 handlar valet om allmänhetens och personalens verklighet. Det måste ges tid att ge trygg och säker vård. Digitalisering ska stärka arbetsmiljö och patientsäkerhet – inte försvåra. När miljardprojekt havererar förloras resurser som kunde ha förbättrat villkor och löner. Digitalisering måste bygga på personalens kompetens och full transparens kring kostnader och risker samt utvecklas i Sverige för att systemen ska fungera även i kris. Först då kan de digitala verktygen bli det stöd som personalen och patienterna förtjänar."
+    },
+    {
+      "author": "Fredrik Lundh Sammeli (S)",
+      "role": "vice ordförande Socialutskottet",
+      "text": "Sverige är ett av världens mest innovativa länder, men lyckas inte omsätta innovationer eller AI-lösningar i vården i den omfattning som krävs för att klara framtidens utmaningar. Socialstyrelsen har pekat på brist på strukturer och helhetsansvar som avgörande hinder. Det behövs därför politiska åtgärder för förstärkt innovations- och AI-kapacitet i hela hälso- och sjukvårdssystemet. För att åstadkomma detta behöver hälso- och sjukvårdens uppdrag utvidgas till att, på samma sätt som gäller för forskning, också omfatta innovationer. För detta krävs en breddad finansiering och att det avsätts medel specifikt för innovationsarbete för alla landets regioner, lika självklart som för utbildning och forskning. Vidare behöver landets regioner stöd för att öka sin genomförandekapacitet för att implementera och skala upp innovationer i arbetet."
+    },
+    {
+      "author": "Jessica Stegrud (SD)",
+      "role": "ledamot socialutskottet",
+      "text": "Ett mycket aktuellt ämne är regionernas vårdinformationssystem. Detta är en komplex och resurskrävande fråga och erfarenheterna från till exempel Västra Götalandsregionen visar vilka problem som kan uppstå på regionnivå. Istället för att 21 regioner arbetar parallellt talar mycket för att vi ska ha ett enhetligt system. Sverigedemokraterna vill se ett tryggt och välfungerande system som inte reser barriärer mellan regionerna. Sverigedemokraternas uppfattning är att staten ska ha ett övergripande ansvar för detta."
+    },
+    {
+      "author": "Unn Hellberg",
+      "role": "vd Doctrin",
+      "text": "AI kommer vara en central fråga inom all digitalisering, men specifikt för sjukvården är hur digitalisering och AI kan lösa arbetsmiljö- och bemanningskrisen. Vårdpersonal lämnar yrket på grund av stress och hög arbetsbelastning. Digitalisering och AI kan förbättra arbetsmiljön, med förbättrad tillgänglighet, bibehållen kvalitet och ökad produktivitet, men det kräver användarvänliga system, genomtänkt implementering, sund konkurrens och öppen systeminfrastruktur som främjar integrationer."
+    }
+  ]
+}
