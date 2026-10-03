@@ -29,6 +29,8 @@ export const ai = {
   provider,
   anthropic: {
     apiKey: env("ANTHROPIC_API_KEY"),
+    // Needed for org-level keys that aren't scoped to a workspace.
+    workspaceId: env("ANTHROPIC_WORKSPACE_ID"),
     model: env("ANTHROPIC_MODEL") || "claude-opus-5-5",
     effort: (env("ANTHROPIC_EFFORT") || "low") as "low" | "medium" | "high" | "xhigh" | "max",
   },

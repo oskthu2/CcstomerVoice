@@ -42,6 +42,7 @@ matcher, which is handy for testing the setup offline.
 | Variable | Meaning |
 |---|---|
 | `ANTHROPIC_API_KEY` | Claude API key. If it is set, Claude is used (default model `claude-opus-5-5`, `ANTHROPIC_EFFORT=low`). |
+| `ANTHROPIC_WORKSPACE_ID` | Only for keys that are not scoped to a workspace (`wrkspc_…`). |
 | `OPENAI_API_KEY` | OpenAI key. Used when no Anthropic key is set (default model `gpt-4.1-mini`). |
 | `OPENAI_BASE_URL` | Any OpenAI-compatible endpoint, e.g. Ollama (`http://ollama:11434/v1`). |
 | `AI_PROVIDER` | Optional override: `anthropic`, `openai` or `demo`. |

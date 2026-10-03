@@ -142,6 +142,8 @@ function describe(e: unknown): Error {
   if (e instanceof Anthropic.PermissionDeniedError) return new Error(`403: nyckeln saknar behörighet (${e.message})`);
   if (e instanceof Anthropic.NotFoundError) return new Error(`404: modellen "${ai.anthropic.model}" finns inte för kontot – sätt ANTHROPIC_MODEL`);
   if (e instanceof Anthropic.RateLimitError) return new Error("429: rate limit eller slut på krediter");
+  if (e instanceof Anthropic.BadRequestError && /workspace/i.test(e.message))
+    return new Error("400: nyckeln är inte kopplad till en workspace – sätt ANTHROPIC_WORKSPACE_ID i secrets.env (eller skapa en workspace-nyckel)");
   if (e instanceof Anthropic.APIError) return new Error(`${e.status ?? ""} ${e.message}`.trim());
   return e instanceof Error ? e : new Error(String(e));
 }
@@ -149,7 +151,10 @@ let openaiClient: OpenAI | null = null;
 
 async function chatJson<T>(system: string, user: string, schema: Record<string, unknown>): Promise<T> {
   if (ai.provider === "anthropic") {
-    anthropicClient ??= new Anthropic({ apiKey: ai.anthropic.apiKey });
+    anthropicClient ??= new Anthropic({
+      apiKey: ai.anthropic.apiKey,
+      defaultHeaders: ai.anthropic.workspaceId ? { "anthropic-workspace-id": ai.anthropic.workspaceId } : undefined,
+    });
     const base = {
       model: ai.anthropic.model,
       max_tokens: 16000,
@@ -167,7 +172,7 @@ async function chatJson<T>(system: string, user: string, schema: Record<string, 
       });
     } catch (e) {
       // Some accounts/models don't accept the fallback beta: retry once as a plain request.
-      if (!(e instanceof Anthropic.BadRequestError)) throw describe(e);
+      if (!(e instanceof Anthropic.BadRequestError) || /workspace/i.test(e.message)) throw describe(e);
       console.warn("[ai] request rejected with fallbacks, retrying without:", e.message);
       try {
         res = await anthropicClient.messages.create(base);
