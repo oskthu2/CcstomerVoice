@@ -15,10 +15,24 @@ around this use case.
 
 ## Quick start (Docker)
 
+macOS / Linux (bash):
+
 ```bash
-cp config/secrets.example.env config/secrets.env   # then add your API key(s)
+cp config/secrets.example.env config/secrets.env
+nano config/secrets.env          # add ANTHROPIC_API_KEY and/or OPENAI_API_KEY
 docker compose up -d --build
 ```
+
+Windows (PowerShell):
+
+```powershell
+Copy-Item config\secrets.example.env config\secrets.env
+notepad config\secrets.env       # add ANTHROPIC_API_KEY and/or OPENAI_API_KEY, then save
+docker compose up -d --build
+```
+
+Other devices on the network reach the app through your computer's IP address (`ipconfig` / `ip addr`) instead of
+`localhost`. On Windows you may need to allow port 3000 in the firewall.
 
 Open <http://localhost:3000>. If you start without a key, the app runs in **demo mode** and uses a keyword
 matcher, which is handy for testing the setup offline.
