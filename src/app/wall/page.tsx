@@ -69,8 +69,6 @@ export default function WallPage() {
   const cards = new Map<string, typeof state.insights>();
   for (const i of state.insights) cards.set(i.product, [...(cards.get(i.product) ?? []), i]);
   const cardsWith = (id: string) => [...cards.values()].filter((l) => l.filter((i) => i.benefits?.includes(id)).length / l.length >= 1 / 3).length;
-  const timeNeeds = state.insights.filter((i) => i.economic === "time").length;
-  const resourceNeeds = state.insights.filter((i) => i.economic === "resources").length;
   const catNames = new Map(state.categories.map((c) => [c.id, c]));
 
   return (
@@ -117,11 +115,6 @@ export default function WallPage() {
                 <span>{cardsWith(b.id)} kort</span>
               </div>
             ))}
-            {(timeNeeds > 0 || resourceNeeds > 0) && (
-              <div className="legend-sub">
-                Ekonomisk nytta: <b>{timeNeeds}</b> behov frigör tid · <b>{resourceNeeds}</b> frigör resurser
-              </div>
-            )}
           </div>
         ) : (
           <div className="wall-legend">

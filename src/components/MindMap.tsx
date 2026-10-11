@@ -116,8 +116,6 @@ function ValueCardNode({ data }: NodeProps<Node<ValueCardData>>) {
       <div className="meta">
         {data.status === "future" && <span className="pill future">Möjlighet</span>}
         <span>{data.count} {data.count === 1 ? "behov" : "behov"}</span>
-        {data.time > 0 && <span className="chip">⏱ Frigjord tid</span>}
-        {data.resources > 0 && <span className="chip">◎ Frigjorda resurser</span>}
       </div>
       <p>{data.need}</p>
       <Center />

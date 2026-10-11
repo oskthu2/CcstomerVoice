@@ -21,7 +21,7 @@ const KINDS = {
   benefits: {
     title: "Nyttor",
     intro:
-      "AI:n bedömer om varje behov pekar på en nytta som kan tillgodogöras, och i så fall vilken. För ekonomisk nytta anges också om den främst frigör tid eller resurser. Ett kort på väggens värdevy får en nytta när minst en tredjedel av dess behov pekar på den. Högst tre nyttor, eftersom de visas som ett venndiagram.",
+      "AI:n bedömer om varje behov pekar på en nytta som kan tillgodogöras, och i så fall vilken. Beskrivningen är AI:ns definition – skriv den som en beslutsregel med exempel (t.ex. att frigjord personaltid är omfördelningsnytta). Ett kort på väggens värdevy får en nytta när minst en tredjedel av dess behov pekar på den. Högst tre nyttor, eftersom de visas som ett venndiagram.",
     add: "+ Lägg till nytta",
     save: "Spara nyttor",
     redo: "Bedöm nytta för alla behov",

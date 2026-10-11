@@ -13,7 +13,6 @@ export interface RawInsight {
   rationale?: string;
   /** Benefit names as returned by the model (mapped to ids by the engine). */
   benefits?: string[];
-  economic?: string;
 }
 
 export interface RegroupResult {
@@ -47,26 +46,17 @@ ${categoriesText(st.categories)}
 
 ${benefitsText(st.benefits)}
 
-SVARSFORMAT: svara ENDAST med JSON enligt {"insights":[{"excerpt":"","need":"","theme":"","product":"","product_status":"current","rationale":"","benefits":["nyttonamn"],"economic":""}],"categories":["kategorinamn"]}`;
+SVARSFORMAT: svara ENDAST med JSON enligt {"insights":[{"excerpt":"","need":"","theme":"","product":"","product_status":"current","rationale":"","benefits":["nyttonamn"]}],"categories":["kategorinamn"]}`;
 }
 
 function categoriesText(categories: Category[]) {
-  return `KATEGORIER: ange i "categories" vilka av följande kategorier HELA uttalandet berör – en, flera eller ingen. Använd exakt namnen:
+  return `KATEGORIER: ange i "categories" vilka av följande kategorier HELA uttalandet tydligt berör – en, flera eller ingen. Utgå från vem behovet främst gäller. Välj en kategori bara om uttalandet ger stöd för den; lägg inte till kategorier "för säkerhets skull". Använd exakt namnen:
 ${categories.map((c) => `- ${c.name}: ${c.description}`).join("\n")}`;
 }
 
 function benefitsText(benefits: Category[]) {
-  return `NYTTA: bedöm för VARJE insikt om den pekar på en nytta som kan tillgodogöras om behovet löses. Ange i "benefits" vilka av följande nyttor den till stor del ger – en, flera eller ingen (tom lista om nyttan är oklar). Använd exakt namnen:
-${benefits.map((c) => `- ${c.name}: ${c.description}`).join("\n")}
-Om nyttan är ekonomisk: ange i "economic" om den främst ger "${ECONOMIC.time}" eller "${ECONOMIC.resources}", annars "".`;
-}
-
-/** Labels for the two kinds of economic benefit. */
-export const ECONOMIC = { time: "frigjord tid", resources: "frigjorda resurser" } as const;
-
-export function toEconomic(v: unknown): "time" | "resources" | undefined {
-  const s = String(v ?? "").toLowerCase();
-  return s.includes("tid") ? "time" : s.includes("resurs") ? "resources" : undefined;
+  return `NYTTA: bedöm för VARJE insikt om den pekar på en nytta som kan tillgodogöras om behovet löses. Ange i "benefits" vilka av följande nyttor den till stor del ger – en, flera eller ingen (tom lista om nyttan är oklar eller bara antydd). Följ definitionerna noga, särskilt gränsen mellan nyttor som värderas i pengar och nyttor som inte gör det. Använd exakt namnen:
+${benefits.map((c) => `- ${c.name}: ${c.description}`).join("\n")}`;
 }
 
 /** Map category names returned by the model back to stable category ids. */
@@ -124,9 +114,8 @@ function insightsSchema(categories: Category[], benefits: Category[]) {
           properties: {
             ...item.properties,
             benefits: { type: "array", items: { type: "string", enum: benefits.map((b) => b.name) } },
-            economic: { type: "string", enum: [ECONOMIC.time, ECONOMIC.resources, ""] },
           },
-          required: [...item.required, "benefits", "economic"],
+          required: [...item.required, "benefits"],
         },
       },
       categories: { type: "array", items: { type: "string", enum: categories.map((c) => c.name) } },
@@ -255,23 +244,18 @@ export async function analyzeStatement(
 
 /**
  * Assess the benefit of many needs in one call (used after the benefit types are edited in /admin,
- * or for insights created before the value view existed). Returns benefit ids + economic kind per insight id.
+ * or for insights created before the value view existed). Returns benefit ids per insight id.
  */
 export async function classifyBenefits(
   items: { id: string; need: string; product: string; excerpt: string }[],
   benefits: Category[],
-): Promise<Map<string, { benefits: string[]; economic?: "time" | "resources" }>> {
-  if (demoMode) {
-    return new Map(items.map((i) => {
-      const r = keywordBenefits(`${i.need} ${i.excerpt}`, benefits);
-      return [i.id, { benefits: toCategoryIds(r.benefits, benefits), economic: toEconomic(r.economic) }];
-    }));
-  }
+): Promise<Map<string, string[]>> {
+  if (demoMode) return new Map(items.map((i) => [i.id, toCategoryIds(keywordBenefits(`${i.need} ${i.excerpt}`, benefits).benefits, benefits)]));
   const system = `Du bedömer nyttan av behov som besökare på en konferens lyft om vårdens digitalisering. Varje behov är kopplat till en Inera-tjänst eller möjlighet.
 ${benefitsText(benefits)}
 
-SVARSFORMAT: svara ENDAST med JSON {"results":[{"id":"…","benefits":["nyttonamn"],"economic":""}]} med ett resultat per behov.`;
-  const out = await chatJson<{ results?: { id: string; benefits: string[]; economic: string }[] }>(system, JSON.stringify(items), {
+SVARSFORMAT: svara ENDAST med JSON {"results":[{"id":"…","benefits":["nyttonamn"]}]} med ett resultat per behov.`;
+  const out = await chatJson<{ results?: { id: string; benefits: string[] }[] }>(system, JSON.stringify(items), {
     type: "object",
     properties: {
       results: {
@@ -281,9 +265,8 @@ SVARSFORMAT: svara ENDAST med JSON {"results":[{"id":"…","benefits":["nyttonam
           properties: {
             id: { type: "string" },
             benefits: { type: "array", items: { type: "string", enum: benefits.map((b) => b.name) } },
-            economic: { type: "string", enum: [ECONOMIC.time, ECONOMIC.resources, ""] },
           },
-          required: ["id", "benefits", "economic"],
+          required: ["id", "benefits"],
           additionalProperties: false,
         },
       },
@@ -291,7 +274,7 @@ SVARSFORMAT: svara ENDAST med JSON {"results":[{"id":"…","benefits":["nyttonam
     required: ["results"],
     additionalProperties: false,
   });
-  return new Map((out.results ?? []).map((r) => [r.id, { benefits: toCategoryIds(r.benefits, benefits), economic: toEconomic(r.economic) }]));
+  return new Map((out.results ?? []).map((r) => [r.id, toCategoryIds(r.benefits, benefits)]));
 }
 
 /**
@@ -335,7 +318,48 @@ export async function testAi(products: Product[]) {
     [],
   );
   const names = getSettings().categories.filter((c) => categories.includes(c.id)).map((c) => c.name);
-  return { provider: ai.provider, model: ai.model, ms: Date.now() - t0, insights, categories: names };
+  return { provider: ai.provider, model: ai.model, ms: Date.now() - t0, insights, categories: names, calibration: await calibrate() };
+}
+
+// Calibration cases for the built-in categories and benefits: the tricky boundaries
+// (freed staff time vs. money saved, organisation vs. individual). Skipped for ids that
+// have been removed in /admin, and in demo mode (keyword matching isn't the AI).
+const CATEGORY_CASES = [
+  { text: "Jag vill kunna se min journal och mina provsvar i mobilen.", want: "patienter", not: "kommuner-regioner" },
+  { text: "Som sjuksköterska drunknar jag i dubbeldokumentation mellan olika system.", want: "medarbetare" },
+  { text: "Regionerna måste upphandla journalsystem som kan dela information med kommunerna.", want: "kommuner-regioner", not: "patienter" },
+  { text: "Kommunens hemtjänst och regionens vårdcentral behöver samma plattform för vårdplaner.", want: "kommuner-regioner" },
+];
+const BENEFIT_CASES = [
+  { need: "Slippa skicka pappersbrev med porto till patienter", want: "finansiell", not: "kvalitet" },
+  { need: "Sjuksköterskor lägger mindre tid på dubbeldokumentation", want: "omfordelning", not: "finansiell" },
+  { need: "Frigjorda mottagningsrum kan användas till fler besök", want: "omfordelning", not: "finansiell" },
+  { need: "Administrativa tjänster kan avvecklas när blanketterna digitaliseras", want: "finansiell" },
+  { need: "Patienter känner sig tryggare mellan besöken", want: "kvalitet", not: "finansiell" },
+];
+
+async function calibrate() {
+  if (demoMode) return null;
+  const { categories, benefits } = getSettings();
+  const catIds = new Set(categories.map((c) => c.id));
+  const benIds = new Set(benefits.map((b) => b.id));
+  const cats = CATEGORY_CASES.filter((c) => catIds.has(c.want));
+  const bens = BENEFIT_CASES.filter((c) => benIds.has(c.want));
+  const [catRes, benRes] = await Promise.all([
+    cats.length ? classifyStatements(cats.map((c, i) => ({ id: `c${i}`, text: c.text })), categories) : new Map<string, string[]>(),
+    bens.length ? classifyBenefits(bens.map((c, i) => ({ id: `b${i}`, need: c.need, product: "", excerpt: c.need })), benefits) : new Map<string, string[]>(),
+  ]);
+  const failures: string[] = [];
+  const name = (list: { id: string; name: string }[], ids: string[]) => ids.map((id) => list.find((x) => x.id === id)?.name ?? id).join(", ") || "inget";
+  cats.forEach((c, i) => {
+    const got = catRes.get(`c${i}`) ?? [];
+    if (!got.includes(c.want) || (c.not && got.includes(c.not))) failures.push(`"${c.text}" → ${name(categories, got)}`);
+  });
+  bens.forEach((c, i) => {
+    const got = benRes.get(`b${i}`) ?? [];
+    if (!got.includes(c.want) || (c.not && got.includes(c.not))) failures.push(`"${c.need}" → ${name(benefits, got)}`);
+  });
+  return { total: cats.length + bens.length, passed: cats.length + bens.length - failures.length, failures };
 }
 
 /** Consolidate themes (and synonym future products) across all insights. */
@@ -374,20 +398,19 @@ const RULES: { re: RegExp; theme: string; product: string; status: ProductStatus
 const CATEGORY_KEYWORDS: Record<string, RegExp> = {
   patienter: /patient|invånar|anhörig|närstående|egenvård|äldre|medborgar|brukare|egen hälsodata|tillgänglig/i,
   medarbetare: /personal|medarbetar|arbetsmiljö|administrat|läkare|sjukskötersk|dokumentation|kompetens|profession|chef/i,
-  infrastruktur: /infrastruktur|interoperab|system|journal|standard|api|robust|cyber|plattform|data|säkerhet/i,
+  "kommuner-regioner": /region|kommun|huvudm|styrning|upphandl|ersättning|infrastruktur|interoperab|system|standard|samverkan|införande/i,
 };
 
 // Demo-mode benefit matching (returns names, like the model does).
 const BENEFIT_KEYWORDS: Record<string, RegExp> = {
-  kvalitet: /patientsäker|kvalitet|säker|risk|kontinuitet|diagnos|jämlik|följer patienten|journal/i,
-  arbetsmiljo: /arbetsmiljö|personal|stress|kompetens|utbild|medarbetar|avlast|lärande/i,
-  ekonomi: /tid|kostnad|resurs|effektiv|produktiv|kapacitet|automatiser|administrat|dubbel/i,
+  finansiell: /kostnad|porto|papper|intäkt|besparing|licens|spara pengar|billigare/i,
+  omfordelning: /tid|administrat|dokumentation|dubbel|frigör|avlast|lokal|kapacitet|effektiv|automatiser/i,
+  kvalitet: /hälsa|trygg|säker|kvalitet|jämlik|kontinuitet|delaktig|tillgänglig|gemenskap|arbetsmiljö|risk/i,
 };
 
 function keywordBenefits(text: string, benefits: Category[]) {
   const hit = benefits.filter((b) => (BENEFIT_KEYWORDS[b.id] ?? new RegExp(b.name.slice(0, 6), "i")).test(text));
-  const economic = hit.some((b) => b.id === "ekonomi") ? (/tid|administrat|dubbel/i.test(text) ? ECONOMIC.time : ECONOMIC.resources) : "";
-  return { benefits: hit.map((b) => b.name), economic };
+  return { benefits: hit.map((b) => b.name) };
 }
 
 function keywordCategories(text: string, categories: Category[]): string[] {

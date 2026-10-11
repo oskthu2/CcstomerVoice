@@ -53,7 +53,11 @@ export default function AdminPage() {
       if (!res.ok) throw new Error(json.error);
       if (action === "regroup" && !json.ok) throw new Error("Omgruppering kräver AI-nyckel och minst en insikt.");
       setMsg(
-        action === "test" ? `AI fungerar ✔ (${json.provider}, ${json.model}, ${json.ms} ms): ${json.insights.map((i: { product: string }) => i.product).join(", ") || "inga insikter"} · kategorier: ${json.categories?.join(", ") || "inga"}`
+        action === "test" ? `AI fungerar ✔ (${json.provider}, ${json.model}, ${json.ms} ms): ${json.insights.map((i: { product: string }) => i.product).join(", ") || "inga insikter"} · kategorier: ${json.categories?.join(", ") || "inga"}${
+            json.calibration
+              ? ` · Kalibrering: ${json.calibration.passed}/${json.calibration.total} rätt${json.calibration.failures.length ? ` – avvikelser: ${json.calibration.failures.join(" | ")}` : " ✔"}`
+              : ""
+          }`
         : action === "retry" ? `${json.retried} misslyckade röster köade igen.`
         : action === "seed" ? `${json.added} exempel köade för analys.`
         : action === "regroup" ? (json.ok ? "Teman omgrupperade." : "Omgruppering kräver AI-nyckel och minst en insikt.")
@@ -147,7 +151,6 @@ export default function AdminPage() {
                     {(i.benefits?.length ?? 0) > 0 && (
                       <div className="note">
                         Nytta: {i.benefits!.map((id) => state!.benefits.find((b) => b.id === id)?.name).filter(Boolean).join(", ")}
-                        {i.economic && ` (${i.economic === "time" ? "frigjord tid" : "frigjorda resurser"})`}
                       </div>
                     )}
                   </div>

@@ -34,16 +34,66 @@ export interface Settings {
 }
 
 export const DEFAULT_BENEFITS: Category[] = [
-  { id: "kvalitet", name: "Kvalitet & patientsäkerhet", description: "Bättre vårdkvalitet, färre fel och risker, säkrare och mer jämlik vård för patienten.", color: "#19a7a8" },
-  { id: "arbetsmiljo", name: "Arbetsmiljö & utvecklingsförmåga", description: "Bättre arbetsmiljö, mindre stress, ökad kompetens och förmåga att utveckla verksamheten.", color: "#d9622b" },
-  { id: "ekonomi", name: "Ekonomisk nytta", description: "Frigjord tid (t.ex. mindre administration och dubbelarbete) eller frigjorda resurser (t.ex. lägre kostnader, bättre kapacitetsutnyttjande).", color: "#c99a06" },
+  {
+    id: "finansiell",
+    name: "Finansiell nytta",
+    description:
+      "Värderas och hämtas hem i pengar: besparingar eller ökade intäkter som faktiskt syns i budgeten. Exempel: minskade kostnader för papper, porto, licenser eller lokaler som avvecklas; minskade personalkostnader ENDAST när tjänster faktiskt avvecklas eller personal sägs upp.",
+    color: "#c99a06",
+  },
+  {
+    id: "omfordelning",
+    name: "Omfördelningsnytta",
+    description:
+      "Frigjorda resurser som kan värderas i pengar men hämtas hem först när de används på nya sätt. Exempel: frigjord tid för sjuksköterskor och annan personal (mindre administration, dokumentation, dubbelarbete, väntan), frigjorda lokaler eller utrustning som används till annat. Frigjord personaltid där personalen behålls är ALLTID omfördelningsnytta, aldrig finansiell nytta.",
+    color: "#d9622b",
+  },
+  {
+    id: "kvalitet",
+    name: "Kvalitetsnytta",
+    description:
+      "Kvaliteter för individer eller sociala kvaliteter som inte värderas i pengar men kan beskrivas och mätas. Exempel: bättre hälsa för invånare, ökad trygghet, ökad patientsäkerhet, delaktighet, tillgänglighet och jämlikhet, bättre arbetsmiljö, ökad gemenskap.",
+    color: "#19a7a8",
+  },
 ];
 
+/** Earlier built-in benefit ids/names: replaced by the new defaults if never edited. */
+const LEGACY_DEFAULT_BENEFITS = ["kvalitet:Kvalitet & patientsäkerhet", "arbetsmiljo:Arbetsmiljö & utvecklingsförmåga", "ekonomi:Ekonomisk nytta"];
+
 export const DEFAULT_CATEGORIES: Category[] = [
-  { id: "patienter", name: "Patienter", description: "Invånare, patienter och närstående: tillgång till vård och egen information, delaktighet, egenvård.", color: "#19a7a8" },
-  { id: "medarbetare", name: "Medarbetare", description: "Vård- och omsorgspersonal: arbetsmiljö, administration, kompetens och verktyg i vardagen.", color: "#d9622b" },
-  { id: "infrastruktur", name: "Infrastruktur", description: "System och informationsdelning, standarder, säkerhet, robusthet och nationell digital infrastruktur.", color: "#8a4fd1" },
+  {
+    id: "patienter",
+    name: "Patienter",
+    description:
+      "Invånare, patienter och närstående som tar emot vård och omsorg: tillgång till vård, egen hälsoinformation och journal, delaktighet, trygghet, egenvård, digitala kontakter med vården. Välj när behovet främst gäller den som får vård.",
+    color: "#19a7a8",
+  },
+  {
+    id: "medarbetare",
+    name: "Medarbetare",
+    description:
+      "Personal i vård och omsorg i sitt dagliga arbete (t.ex. läkare, sjuksköterskor, undersköterskor, närmaste chefer): arbetsmiljö, administration och dokumentation, kompetens, beslutsstöd och verktyg i vardagen. Välj när behovet främst gäller de som utför vården.",
+    color: "#d9622b",
+  },
+  {
+    id: "kommuner-regioner",
+    name: "Kommuner och regioner",
+    description:
+      "Huvudmännen och vårdgivarna som organisationer: regioner, kommuner och deras verksamheter. Styrning och ledning, ekonomi och ersättningsmodeller, upphandling, samverkan och informationsdelning mellan huvudmän, gemensam digital infrastruktur, införande och förvaltning av system, robusthet och säkerhet. Välj när behovet gäller organisationen eller systemet snarare än en enskild patient eller medarbetare.",
+    color: "#8a4fd1",
+  },
 ];
+
+/** Earlier built-in category ids/names: replaced by the new defaults if never edited. */
+const LEGACY_DEFAULT_CATEGORIES = ["patienter:Patienter", "medarbetare:Medarbetare", "infrastruktur:Infrastruktur"];
+
+const signature = (list: Category[] | undefined) => (list ?? []).map((c) => `${c.id}:${c.name}`).join("|");
+
+/** True when stored categories/benefits were still the old built-in defaults and got replaced. */
+export function migratedDefaults() {
+  getSettings();
+  return g.__cvMigrated ?? { categories: false, benefits: false };
+}
 
 export const DEFAULT_WALL: WallSettings = { theme: "dark", overviewSec: 14, themeSec: 9, freshSec: 14, view: "themes", viewSec: 90 };
 
@@ -99,13 +149,24 @@ export const DEFAULT_SETTINGS: Settings = {
 };
 
 const FILE = path.join(DATA_DIR, "settings.json");
-const g = globalThis as unknown as { __cvSettings?: Settings };
+const g = globalThis as unknown as { __cvSettings?: Settings; __cvMigrated?: { categories: boolean; benefits: boolean } };
 
 export function getSettings(): Settings {
   if (!g.__cvSettings) {
     try {
       const saved = JSON.parse(fs.readFileSync(FILE, "utf8"));
-      g.__cvSettings = { ...DEFAULT_SETTINGS, ...saved, wall: { ...DEFAULT_WALL, ...saved.wall }, categories: saved.categories?.length ? saved.categories : DEFAULT_CATEGORIES, benefits: saved.benefits?.length ? saved.benefits : DEFAULT_BENEFITS };
+      // Untouched old defaults are upgraded to the current defaults (edited lists are kept).
+      const oldCats = signature(saved.categories) === LEGACY_DEFAULT_CATEGORIES.join("|");
+      const oldBenefits = signature(saved.benefits) === LEGACY_DEFAULT_BENEFITS.join("|");
+      g.__cvMigrated = { categories: oldCats, benefits: oldBenefits };
+      g.__cvSettings = {
+        ...DEFAULT_SETTINGS,
+        ...saved,
+        wall: { ...DEFAULT_WALL, ...saved.wall },
+        categories: saved.categories?.length && !oldCats ? saved.categories : DEFAULT_CATEGORIES,
+        benefits: saved.benefits?.length && !oldBenefits ? saved.benefits : DEFAULT_BENEFITS,
+      };
+      if (oldCats || oldBenefits) fs.writeFileSync(FILE, JSON.stringify(g.__cvSettings, null, 2));
     } catch {
       g.__cvSettings = { ...DEFAULT_SETTINGS };
     }

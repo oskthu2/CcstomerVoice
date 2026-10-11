@@ -1,7 +1,7 @@
-import { analyzeStatement, classifyBenefits, classifyStatements, regroup, toCategoryIds, toEconomic, type RawInsight } from "./ai";
+import { analyzeStatement, classifyBenefits, classifyStatements, regroup, toCategoryIds, type RawInsight } from "./ai";
 import { loadSeed, seedOnStart } from "./config";
 import { loadProducts } from "./products";
-import { getSettings } from "./settings";
+import { getSettings, migratedDefaults } from "./settings";
 import { getState, mutate, newId } from "./store";
 import type { Insight, Product, Statement } from "./types";
 
@@ -28,6 +28,16 @@ export function ensureStarted() {
   const s = getState();
   if (seedOnStart && s.statements.length === 0) seedExamples();
   for (const st of s.statements) if (st.status === "pending" || st.status === "processing") enqueue(st.id);
+  // Re-classify existing data when the built-in lists were upgraded, or when stored ids no longer
+  // exist (e.g. data from an older version, or a category removed in /admin).
+  const migrated = migratedDefaults();
+  const { categories, benefits } = getSettings();
+  const catIds = new Set(categories.map((c) => c.id));
+  const benIds = new Set(benefits.map((b) => b.id));
+  const staleCats = s.statements.some((st) => st.categories?.some((id) => !catIds.has(id)));
+  const staleBenefits = s.insights.some((i) => i.benefits?.some((id) => !benIds.has(id)));
+  if ((migrated.categories || staleCats) && s.statements.length) recategorizeAll().catch((e) => console.error("[engine] auto re-categorise failed", e));
+  if ((migrated.benefits || staleBenefits) && s.insights.length) reassessBenefitsAll().catch((e) => console.error("[engine] auto benefit assessment failed", e));
 }
 
 export function submitStatement(input: { text: string; author?: string; role?: string; organization?: string; source?: Statement["source"] }) {
@@ -218,7 +228,6 @@ function toInsight(r: RawInsight, statementId: string, s: ReturnType<typeof getS
     productStatus: status,
     rationale: r.rationale?.trim(),
     benefits: toCategoryIds(r.benefits, getSettings().benefits),
-    economic: toEconomic(r.economic),
     createdAt: new Date().toISOString(),
   };
 }
@@ -276,7 +285,7 @@ export async function reassessBenefitsAll() {
     try {
       for (let i = 0; i < items.length; i += CLASSIFY_BATCH) {
         const batch = items.slice(i, i + CLASSIFY_BATCH);
-        let result: Map<string, { benefits: string[]; economic?: "time" | "resources" }> | null = null;
+        let result: Map<string, string[]> | null = null;
         for (let attempt = 0; attempt < 3 && !result; attempt++) {
           try {
             result = await classifyBenefits(batch, getSettings().benefits);
@@ -291,8 +300,8 @@ export async function reassessBenefitsAll() {
             s.insights.forEach((ins) => {
               const v = r.get(ins.id);
               if (v) {
-                ins.benefits = v.benefits;
-                ins.economic = v.economic;
+                ins.benefits = v;
+                delete ins.economic;
               }
             }),
           );

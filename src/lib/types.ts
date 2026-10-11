@@ -33,7 +33,7 @@ export interface Insight {
   rationale?: string;
   /** Ids of the benefit types (e.g. kvalitet, arbetsmiljo, ekonomi) this need would deliver. */
   benefits?: string[];
-  /** For economic benefit: whether it frees up time or other resources. */
+  /** Legacy (no longer assessed): economic benefit split into time/resources. */
   economic?: "time" | "resources";
   createdAt: string;
 }

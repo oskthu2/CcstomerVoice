@@ -423,7 +423,7 @@ export function buildVennGraph(categories: Category[], statements: Statement[], 
 // benefit types. A card gets a benefit when at least a third of its needs point to it.
 // ---------------------------------------------------------------------------
 export interface ValueCardData extends Record<string, unknown> {
-  name: string; status: ProductStatus; count: number; need: string; colors: string[]; time: number; resources: number; fresh: boolean;
+  name: string; status: ProductStatus; count: number; need: string; colors: string[]; fresh: boolean;
 }
 const VALUE_CARD = { w: 360, h: 168 };
 export const BENEFIT_SHARE = 1 / 3;
@@ -441,7 +441,6 @@ export function buildValueGraph(benefits: Category[], insights: Insight[], fresh
       id: `b:${name}`, sets, createdAt: newest[newest.length - 1].createdAt, type: "valueCard",
       data: {
         name, status: list[0].productStatus, count: list.length, need: newest[0].need, colors: sets.map((s) => colorOf.get(s)!),
-        time: list.filter((i) => i.economic === "time").length, resources: list.filter((i) => i.economic === "resources").length,
         fresh: list.some((i) => fresh.has(i.id)),
       } satisfies ValueCardData,
     };

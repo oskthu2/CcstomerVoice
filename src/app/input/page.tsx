@@ -9,7 +9,6 @@ interface ResultInsight {
   theme?: string;
   rationale?: string;
   benefitNames?: string[];
-  economic?: "time" | "resources";
 }
 
 type Phase = "form" | "sending" | "result";
@@ -156,7 +155,6 @@ export default function InputPage() {
                 {(i.benefitNames?.length ?? 0) > 0 && (
                   <div className="note">
                     Nytta: {i.benefitNames!.join(", ")}
-                    {i.economic && ` – ${i.economic === "time" ? "frigjord tid" : "frigjorda resurser"}`}
                   </div>
                 )}
               </div>
