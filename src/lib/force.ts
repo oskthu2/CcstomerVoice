@@ -23,7 +23,7 @@ export interface Link extends SimulationLinkDatum<Box> {
  * Rectangle collision: pushes overlapping boxes apart along the axis of least overlap.
  * d3's built-in forceCollide only knows circles, which wastes space around wide cards.
  */
-function rectCollide(padding: number) {
+export function rectCollide(padding: number) {
   let nodes: Box[] = [];
   const force = (alpha: number) => {
     const strength = Math.min(1, 0.4 + alpha);

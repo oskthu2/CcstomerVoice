@@ -1,5 +1,5 @@
 import type { Edge, Node } from "@xyflow/react";
-import { hash01, relax, type Box, type Link } from "./force";
+import { hash01, rectCollide, relax, type Box, type Link } from "./force";
 import { who } from "./format";
 import type { Category, Insight, ProductStatus, Statement, Theme } from "./types";
 
@@ -14,7 +14,9 @@ export interface ProductData extends Record<string, unknown> {
 export interface ThemeData extends Record<string, unknown> { name: string; count: number; color: string }
 export interface RootData extends Record<string, unknown> { title: string; subtitle: string }
 export interface HubData extends Record<string, unknown> { name: string; description: string; count: number; color: string }
-export interface VoiceData extends Record<string, unknown> { text: string; who: string; colors: string[]; fresh: boolean }
+export interface VoiceData extends Record<string, unknown> { text: string; who: string; colors: string[]; fresh: boolean; compact?: boolean }
+export interface VennCircleData extends Record<string, unknown> { color: string; size: number }
+export interface VennLabelData extends Record<string, unknown> { name: string; count: number; color: string }
 
 /** Result of a layout: React Flow nodes/edges plus groups the camera tour can focus on. */
 export interface Graph {
@@ -129,6 +131,8 @@ export function buildThemeGraph(themes: Theme[], insights: Insight[], statements
 // Voices with several categories float between their hubs.
 // ---------------------------------------------------------------------------
 export function buildCategoryGraph(categories: Category[], statements: Statement[], fresh: Set<string>, prev?: Positions): Graph {
+  // Up to three categories read best as a Venn diagram; more fall back to hubs with links.
+  if (categories.length >= 1 && categories.length <= 3) return buildVennGraph(categories, statements, fresh, prev);
   const known = new Set(categories.map((c) => c.id));
   const voices = statements
     .filter((s) => s.status === "done" || (s.categories?.length ?? 0) > 0)
@@ -203,5 +207,174 @@ export function buildCategoryGraph(categories: Category[], statements: Statement
     edges,
     centres: pos,
     groups: hubs.map((h) => ({ id: h.id, nodeIds: [`c:${h.id}`, ...voices.filter((v) => v.cats.includes(h.id)).map((v) => `v:${v.s.id}`)] })),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// View 2 (≤ 3 categories): Venn diagram. Each voice sits in the region that matches
+// its exact set of categories; voices without a category gather under "Övrigt".
+// ---------------------------------------------------------------------------
+const VENN_VOICE = { w: 250, h: 104 };
+
+export function buildVennGraph(categories: Category[], statements: Statement[], fresh: Set<string>, prev?: Positions): Graph {
+  const k = categories.length;
+  const known = new Set(categories.map((c) => c.id));
+  const voices = statements
+    .filter((s) => s.status === "done" || (s.categories?.length ?? 0) > 0)
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+    .map((s) => ({ s, cats: [...new Set((s.categories ?? []).filter((c) => known.has(c)))].sort() }));
+  const regions = new Map<string, typeof voices>();
+  for (const v of voices) {
+    const key = v.cats.join("+") || UNCATEGORIZED_ID;
+    regions.set(key, [...(regions.get(key) ?? []), v]);
+  }
+
+  // Size the circles so the most crowded region has room. Region areas as a share of R² for
+  // equal circles whose centres are R apart: 3 circles → single 1.39, pair 0.52, all three 0.71;
+  // 2 circles → single 1.91, both 1.23; 1 circle → π.
+  const regionFactor = (size: number) => (k === 3 ? [0, 1.39, 0.52, 0.71][size] : k === 2 ? [0, 1.91, 1.23][size] : Math.PI);
+  const cardArea = (VENN_VOICE.w + 14) * (VENN_VOICE.h + 14) * 1.6;
+  let R = 520;
+  for (const [key, members] of regions) {
+    if (key === UNCATEGORIZED_ID) continue;
+    R = Math.max(R, Math.sqrt((members.length * cardArea) / regionFactor(key.split("+").length)));
+  }
+
+  const unit = (x: number, y: number) => {
+    const d = Math.hypot(x, y) || 1;
+    return { x: x / d, y: y / d };
+  };
+  // Lay out for a given radius; if cards still overlap (the lens-shaped regions hold fewer
+  // cards than their area suggests), grow the circles a little and try again.
+  const attempt = (R: number) => {
+    // Circle centres: a triangle (3), side by side (2) or one circle.
+    const centre = new Map<string, { x: number; y: number }>();
+    categories.forEach((c, i) => {
+      if (k === 1) centre.set(c.id, { x: 0, y: 0 });
+      else if (k === 2) centre.set(c.id, { x: (i === 0 ? -1 : 1) * R * 0.5, y: 0 });
+      else {
+        const a = -Math.PI / 2 + (i * 2 * Math.PI) / 3;
+        const rho = R / Math.sqrt(3);
+        centre.set(c.id, { x: Math.cos(a) * rho, y: Math.sin(a) * rho });
+      }
+    });
+    const bottom = Math.max(...[...centre.values()].map((c) => c.y)) + R;
+
+    // Where each region's cloud starts.
+    const anchorOf = (key: string) => {
+      if (key === UNCATEGORIZED_ID) return { x: 0, y: bottom + 300 };
+      const ids = key.split("+");
+      const pts = ids.map((id) => centre.get(id)!);
+      const mx = pts.reduce((a, p) => a + p.x, 0) / pts.length;
+      const my = pts.reduce((a, p) => a + p.y, 0) / pts.length;
+      if (ids.length === k) return { x: mx, y: my }; // in every circle → the middle
+      if (k === 1) return { x: 0, y: 0 };
+      const dir = unit(mx, my);
+      const out = ids.length === 1 ? (k === 3 ? R / Math.sqrt(3) + R * 0.5 : R * 0.95) : R * 0.55;
+      return { x: dir.x * out, y: dir.y * out };
+    };
+
+    const PAD = 18;
+    const SPIRAL = 122;
+    const boxes: (Box & { cats: string[] })[] = [];
+    for (const [key, members] of regions) {
+      const a = anchorOf(key);
+      members.forEach(({ s, cats }, i) => {
+        const id = `v:${s.id}`;
+        const r = SPIRAL * Math.sqrt(i + 0.5);
+        const t = i * 2.399963 + hash01(key) * 6.283;
+        const p = prev?.get(id);
+        boxes.push({ id, w: VENN_VOICE.w, h: VENN_VOICE.h, x: p?.x ?? a.x + Math.cos(t) * r, y: p?.y ?? a.y + Math.sin(t) * r, ax: a.x, ay: a.y, cats });
+      });
+    }
+
+    // Keep every card inside its own circles and outside the others (card treated as a circle).
+    const rc = Math.hypot(VENN_VOICE.w, VENN_VOICE.h) / 2;
+    const constrain = () => {
+      for (const b of boxes) {
+        for (const c of categories) {
+          const o = centre.get(c.id)!;
+          const dx = b.x! - o.x;
+          const dy = b.y! - o.y;
+          const d = Math.hypot(dx, dy);
+          if (b.cats.includes(c.id)) {
+            const max = R - PAD - rc;
+            if (d > max && d > 0) {
+              b.x = o.x + (dx / d) * max;
+              b.y = o.y + (dy / d) * max;
+            }
+          } else {
+            const min = R + PAD + rc;
+            if (d < min) {
+              const u = d > 1 ? { x: dx / d, y: dy / d } : unit(b.ax! - o.x, b.ay! - o.y);
+              b.x = o.x + u.x * min;
+              b.y = o.y + u.y * min;
+            }
+          }
+        }
+      }
+    };
+    const collide = rectCollide(12);
+    collide.initialize(boxes);
+    const iterations = prev?.size ? 120 : 260;
+    for (let i = 0; i < iterations; i++) {
+      for (const b of boxes) {
+        b.x! += (b.ax! - b.x!) * 0.03;
+        b.y! += (b.ay! - b.y!) * 0.03;
+      }
+      collide(0.7);
+      constrain();
+    }
+    for (let i = 0; i < 120; i++) {
+      collide(0.5);
+      constrain();
+    }
+
+
+    let overlaps = 0;
+    for (let i = 0; i < boxes.length; i++)
+      for (let j = i + 1; j < boxes.length; j++) {
+        const a = boxes[i], b = boxes[j];
+        if (Math.abs(a.x! - b.x!) < (a.w + b.w) / 2 - 1 && Math.abs(a.y! - b.y!) < (a.h + b.h) / 2 - 1) overlaps++;
+      }
+    return { R, centre, bottom, boxes, overlaps };
+  };
+  let layout = attempt(R);
+  for (let tries = 0; tries < 7 && layout.overlaps > 0; tries++) layout = attempt(layout.R * 1.08);
+  const { centre, bottom, boxes } = layout;
+  R = layout.R;
+
+  const nodes: Node[] = [];
+  const counts = new Map(categories.map((c) => [c.id, voices.filter((v) => v.cats.includes(c.id)).length]));
+  for (const c of categories) {
+    const o = centre.get(c.id)!;
+    nodes.push({ id: `vc:${c.id}`, type: "vennCircle", position: { x: o.x - R, y: o.y - R }, zIndex: -1, selectable: false, data: { color: c.color, size: 2 * R } satisfies VennCircleData });
+    // Label just outside the circle, away from the middle.
+    const dir = k === 1 ? { x: 0, y: -1 } : unit(o.x, o.y);
+    // Push the label clear of the circle: further sideways for side labels (it is wide).
+    const lx = o.x + dir.x * (R + 60 + 190 * Math.abs(dir.x));
+    const ly = o.y + dir.y * (R + 70);
+    nodes.push({ id: `vl:${c.id}`, type: "vennLabel", position: { x: lx - 210, y: ly - 60 }, data: { name: c.name, count: counts.get(c.id)!, color: c.color } satisfies VennLabelData });
+  }
+  const others = regions.get(UNCATEGORIZED_ID)?.length ?? 0;
+  if (others) nodes.push({ id: "vl:" + UNCATEGORIZED_ID, type: "vennLabel", position: { x: -210, y: bottom + 50 }, data: { name: "Övrigt", count: others, color: "#7a8a99" } satisfies VennLabelData });
+  const colorOf = new Map(categories.map((c) => [c.id, c.color]));
+  const byId = new Map(voices.map((v) => [`v:${v.s.id}`, v]));
+  for (const b of boxes) {
+    const { s, cats } = byId.get(b.id)!;
+    const text = s.text.length > 90 ? s.text.slice(0, 87).trimEnd() + " …" : s.text;
+    nodes.push({
+      id: b.id, type: "voice", position: { x: b.x! - b.w / 2, y: b.y! - b.h / 2 },
+      data: { text, who: who(s), colors: cats.map((c) => colorOf.get(c)!), fresh: fresh.has(s.id), compact: true } satisfies VoiceData,
+    });
+  }
+  return {
+    nodes,
+    edges: [],
+    centres: new Map(boxes.map((b) => [b.id, { x: b.x!, y: b.y! }])),
+    groups: [
+      ...categories.map((c) => ({ id: c.id, nodeIds: [`vc:${c.id}`, `vl:${c.id}`] })),
+      ...(others ? [{ id: UNCATEGORIZED_ID, nodeIds: ["vl:" + UNCATEGORIZED_ID, ...regions.get(UNCATEGORIZED_ID)!.map((v) => `v:${v.s.id}`)] }] : []),
+    ],
   };
 }

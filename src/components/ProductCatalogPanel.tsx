@@ -126,14 +126,14 @@ export default function ProductCatalogPanel({ token, voices, sorting, act }: Pro
         </span>
       </div>
       <p className="note">
-        AI:n kopplar röster till de här produkterna. <b>Befintliga</b> är dagens tjänster, <b>framtida</b> är idéer som AI:n kan återanvända
+        AI:n kopplar röster till de här produkterna. <b>Befintliga</b> är dagens tjänster (visas utan etikett), <b>möjligheter</b> är idéer som AI:n kan återanvända
         (den kan också föreslå nya). Alias hjälper AI:n att känna igen andra namn för samma tjänst.
       </p>
 
       <div className="segmented">
         {(["all", "current", "future"] as const).map((f) => (
           <button key={f} className={filter === f ? "on" : ""} onClick={() => setFilter(f)}>
-            {f === "all" ? `Alla (${rows.length})` : f === "current" ? `Befintliga (${count("current")})` : `Framtida (${count("future")})`}
+            {f === "all" ? `Alla (${rows.length})` : f === "current" ? `Befintliga (${count("current")})` : `Möjligheter (${count("future")})`}
           </button>
         ))}
       </div>
@@ -151,7 +151,7 @@ export default function ProductCatalogPanel({ token, voices, sorting, act }: Pro
             <input value={r.name} placeholder="Produktnamn" onChange={(e) => edit(r.key, { name: e.target.value })} />
             <select value={r.status} onChange={(e) => edit(r.key, { status: e.target.value as Row["status"] })}>
               <option value="current">Befintlig</option>
-              <option value="future">Framtida</option>
+              <option value="future">Möjlighet</option>
             </select>
             <input value={r.aliases} placeholder="t.ex. 1177.se, Vårdguiden" onChange={(e) => edit(r.key, { aliases: e.target.value })} />
             <input value={r.description} placeholder="Vad produkten gör" onChange={(e) => edit(r.key, { description: e.target.value })} />

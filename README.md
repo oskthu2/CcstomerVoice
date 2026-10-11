@@ -69,8 +69,9 @@ docker compose exec ollama ollama pull qwen2.5:7b
 - **🎤 Prata** uses the browser's speech recognition (sv-SE, Chrome/Edge/Safari). Browsers only allow
   the microphone on `https://` or `localhost`. On a tablet over plain LAN http, use the keyboard's own dictation instead.
 - **Two visualisations.** *Teman och tjänster*: themes float as clouds around the centre, with each theme's
-  Inera services gathered around it. *Kategorier*: every voice is linked to one or more predefined categories
-  (default: Patienter, Medarbetare, Infrastruktur). Voices that share categories float between them. Choose one view or
+  Inera services gathered around it. *Kategorier*: a Venn diagram of the predefined categories
+  (default: Patienter, Medarbetare, Infrastruktur). Each voice sits in the region that matches its categories, and
+  voices without a category sit under "Övrigt". With more than three categories the view falls back to hubs with lines. Choose one view or
   alternate between them in admin, press `V` on the wall, or lock a screen with `/wall?view=categories`.
   The layout is a force simulation ([d3-force](https://d3js.org/d3-force)) rendered with React Flow.
 - **Categories (admin):** rename, recolour, describe (the description steers the AI), add or remove categories, then
@@ -95,6 +96,7 @@ docker compose exec ollama ollama pull qwen2.5:7b
    (and ignores pure party politics, reimbursement models, etc.),
 2. returns a verbatim quote, a short need, a theme (reusing existing themes, max 8), a product and a status
    (`current` = from the catalogue, `future` = a proposed new product or extension), and a one-sentence rationale.
+   On screen, `future` is labelled **Möjlighet** (dashed frame); current services are shown without a label.
 
 The prompt includes three worked examples taken from the article. With Claude, the answer is constrained by a JSON
 schema (structured outputs). Server-side fallbacks are enabled, so if a safety classifier declines a request it is

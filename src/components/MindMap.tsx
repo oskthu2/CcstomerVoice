@@ -4,7 +4,7 @@ import { Handle, Position, ReactFlow, ReactFlowProvider, useReactFlow, type Node
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   buildCategoryGraph, buildThemeGraph,
-  type HubData, type ProductData, type RootData, type ThemeData, type VoiceData,
+  type HubData, type VennCircleData, type VennLabelData, type ProductData, type RootData, type ThemeData, type VoiceData,
 } from "@/lib/layout";
 import type { Category, Insight, Statement, Theme } from "@/lib/types";
 
@@ -52,7 +52,7 @@ function ProductNode({ data }: NodeProps<Node<ProductData>>) {
       <header>
         <h3>{data.name}</h3>
         <div className="meta">
-          <span className={`pill ${data.status}`}>{data.status === "current" ? "Befintlig" : "Framtida"}</span>
+          {data.status === "future" && <span className="pill future">Möjlighet</span>}
           <span>{data.count} {data.count === 1 ? "röst" : "röster"}</span>
         </div>
       </header>
@@ -82,7 +82,7 @@ function HubNode({ data }: NodeProps<Node<HubData>>) {
 
 function VoiceNode({ data }: NodeProps<Node<VoiceData>>) {
   return (
-    <div className={`mm-voice ${data.fresh ? "fresh" : ""}`}>
+    <div className={`mm-voice ${data.compact ? "compact" : ""} ${data.fresh ? "fresh" : ""}`}>
       <div className="dots">
         {data.colors.map((c, i) => <span key={i} style={{ background: c }} />)}
       </div>
@@ -93,7 +93,20 @@ function VoiceNode({ data }: NodeProps<Node<VoiceData>>) {
   );
 }
 
-const nodeTypes = { root: RootNode, theme: ThemeNode, product: ProductNode, hub: HubNode, voice: VoiceNode };
+function VennCircleNode({ data }: NodeProps<Node<VennCircleData>>) {
+  return <div className="mm-venn" style={{ width: data.size, height: data.size, borderColor: data.color, background: `${data.color}1f` }} />;
+}
+
+function VennLabelNode({ data }: NodeProps<Node<VennLabelData>>) {
+  return (
+    <div className="mm-venn-label" style={{ color: data.color }}>
+      {data.name}
+      <small>{data.count} {data.count === 1 ? "röst" : "röster"}</small>
+    </div>
+  );
+}
+
+const nodeTypes = { root: RootNode, theme: ThemeNode, product: ProductNode, hub: HubNode, voice: VoiceNode, vennCircle: VennCircleNode, vennLabel: VennLabelNode };
 
 interface Props {
   view: MapView;

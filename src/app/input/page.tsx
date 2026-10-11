@@ -147,7 +147,7 @@ export default function InputPage() {
             )}
             {insights?.map((i) => (
               <div key={i.id} className={`result-item ${i.productStatus}`}>
-                <span className={`pill ${i.productStatus}`}>{i.productStatus === "current" ? "Befintlig" : "Framtida"}</span>{" "}
+                {i.productStatus === "future" && <><span className="pill future">Möjlighet</span>{" "}</>}
                 <b>{i.product}</b>
                 <div>{i.need}</div>
                 {i.theme && <div className="note">Tema: {i.theme}</div>}
@@ -166,7 +166,7 @@ export default function InputPage() {
     <main className="kiosk">
       <div className="kiosk-card">
         <h1>Vad är viktigast för vårdens digitalisering?</h1>
-        <p className="lead">Berätta om ett behov, ett problem eller en idé. AI:n kopplar din röst till befintliga och framtida Inera-tjänster – live på storskärmen.</p>
+        <p className="lead">Berätta om ett behov, ett problem eller en idé. AI:n kopplar din röst till Ineras tjänster och nya möjligheter – live på storskärmen.</p>
         <textarea
           value={text}
           onChange={(e) => { setText(e.target.value); setPrefillNote(""); }}

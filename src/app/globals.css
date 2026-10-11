@@ -232,3 +232,12 @@ th { background: #eaf0f3; }
 @media (max-width: 640px) { .slider { grid-template-columns: 1fr 56px; } .slider span { grid-column: 1 / -1; } }
 .catalog-row.cat-row { grid-template-columns: 56px minmax(140px, 1fr) minmax(260px, 3fr) 44px; min-width: 560px; }
 .catalog-row input[type=color] { padding: 2px; height: 36px; cursor: pointer; }
+
+/* Venn view */
+.mm-venn { border-radius: 50%; border: 5px solid; pointer-events: none; }
+.mm-venn-label { width: 420px; height: 120px; text-align: center; font-size: 60px; font-weight: 800; line-height: 1.1; display: flex; flex-direction: column; justify-content: center; }
+.mm-venn-label small { font-size: 24px; font-weight: 600; color: var(--muted); }
+.mm-voice.compact { width: 250px; height: 104px; padding: 9px 11px; gap: 3px; }
+.mm-voice.compact p { font-size: 13px; -webkit-line-clamp: 3; }
+.mm-voice.compact em { font-size: 11px; }
+.mm-voice.compact .dots span { width: 8px; height: 8px; }

@@ -141,7 +141,7 @@ export default function AdminPage() {
               <td>
                 {state!.insights.filter((i) => i.statementId === s.id).map((i) => (
                   <div key={i.id} style={{ marginBottom: 6 }}>
-                    <span className={`pill ${i.productStatus}`}>{i.productStatus === "current" ? "B" : "F"}</span> <b>{i.product}</b>: {i.need}
+                    {i.productStatus === "future" && <span className="pill future">Möjlighet</span>} <b>{i.product}</b>: {i.need}
                   </div>
                 ))}
               </td>

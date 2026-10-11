@@ -17,7 +17,7 @@ export function GET(req: Request) {
     const rows = s.insights.map((i) => {
       const st = s.statements.find((x) => x.id === i.statementId);
       const theme = s.themes.find((t) => t.id === i.themeId)?.name;
-      return [theme, i.product, i.productStatus === "current" ? "befintlig" : "framtida", i.need, i.excerpt, i.rationale, st?.author, st?.role, st?.organization, (st?.categories ?? []).map((id) => catName.get(id) ?? id).join(", "), st?.text, i.createdAt];
+      return [theme, i.product, i.productStatus === "current" ? "befintlig" : "möjlighet", i.need, i.excerpt, i.rationale, st?.author, st?.role, st?.organization, (st?.categories ?? []).map((id) => catName.get(id) ?? id).join(", "), st?.text, i.createdAt];
     });
     const csv = "﻿" + [header, ...rows].map((r) => r.map(csvCell).join(";")).join("\r\n");
     return new Response(csv, {

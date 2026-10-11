@@ -90,8 +90,8 @@ export default function WallPage() {
         {view === "themes" ? (
           <div className="wall-stats">
             <div className="wall-stat"><b>{state.statements.length}</b><span>röster</span></div>
-            <div className="wall-stat"><b>{products.size - future.size}</b><span>befintliga tjänster</span></div>
-            <div className="wall-stat"><b>{future.size}</b><span>framtida idéer</span></div>
+            <div className="wall-stat"><b>{products.size - future.size}</b><span>Inera-tjänster</span></div>
+            <div className="wall-stat"><b>{future.size}</b><span>möjligheter</span></div>
           </div>
         ) : (
           <div className="wall-legend">
