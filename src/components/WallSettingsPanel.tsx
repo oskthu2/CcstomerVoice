@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import type { WallSettings, WallTheme } from "@/lib/settings";
+import type { WallSettings, WallTheme, WallView } from "@/lib/settings";
 
 interface Props {
   token: string;
@@ -14,9 +14,15 @@ const THEMES: { value: WallTheme; label: string }[] = [
   { value: "auto", label: "Följ webbläsaren" },
 ];
 
+const VIEWS: { value: WallView; label: string }[] = [
+  { value: "themes", label: "Teman och tjänster" },
+  { value: "categories", label: "Kategorier" },
+  { value: "both", label: "Växla mellan båda" },
+];
+
 const SLIDERS: { key: "overviewSec" | "themeSec" | "freshSec"; label: string; hint: string }[] = [
   { key: "overviewSec", label: "Översikt", hint: "hur länge hela kartan visas" },
-  { key: "themeSec", label: "Per tema", hint: "hur länge kameran stannar på varje tema" },
+  { key: "themeSec", label: "Per tema/kategori", hint: "hur länge kameran stannar på varje grupp" },
   { key: "freshSec", label: "Ny röst", hint: "hur länge en ny röst lyfts fram" },
 ];
 
@@ -65,6 +71,26 @@ export default function WallSettingsPanel({ token, current }: Props) {
       </div>
 
       <div className="field">
+        <span>Visualisering</span>
+        <div className="segmented">
+          {VIEWS.map((v) => (
+            <button key={v.value} className={draft.view === v.value ? "on" : ""} onClick={() => update({ view: v.value })}>
+              {v.label}
+            </button>
+          ))}
+        </div>
+        {draft.view === "both" && (
+          <label className="slider">
+            <span>
+              Byt vy var <small>hur länge varje vy visas innan väggen växlar</small>
+            </span>
+            <input type="range" min={15} max={600} step={15} value={draft.viewSec} onChange={(e) => update({ viewSec: Number(e.target.value) })} />
+            <b>{draft.viewSec} s</b>
+          </label>
+        )}
+      </div>
+
+      <div className="field">
         <span>Utseende</span>
         <div className="segmented">
           {THEMES.map((t) => (
@@ -87,7 +113,7 @@ export default function WallSettingsPanel({ token, current }: Props) {
           </label>
         ))}
       </div>
-      <p className="note">Mellanslag på väggen pausar och startar rundturen.</p>
+      <p className="note">På väggen: mellanslag pausar rundturen, V byter vy. Adressen /wall?view=categories låser en skärm till en vy.</p>
       {status && <p className="note">{status}</p>}
     </section>
   );

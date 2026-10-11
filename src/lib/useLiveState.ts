@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import type { WallSettings } from "./settings";
-import type { Insight, Statement, Theme } from "./types";
+import type { Category, Insight, Statement, Theme } from "./types";
 
 export interface LiveState {
   version: number;
@@ -10,6 +10,8 @@ export interface LiveState {
   model: string | null;
   inputUrl: string;
   wall: WallSettings;
+  categories: Category[];
+  categorizing: { done: number; total: number } | null;
   statements: Statement[];
   insights: Insight[];
   themes: Theme[];
@@ -27,7 +29,7 @@ export function useLiveState(intervalMs = 2000) {
         const res = await fetch(`/api/state?since=${version.current}`, { cache: "no-store" });
         const json = await res.json();
         if (!alive) return;
-        if (json.unchanged) setState((s) => (s ? { ...s, queue: json.queue, wall: json.wall } : s));
+        if (json.unchanged) setState((s) => (s ? { ...s, queue: json.queue, wall: json.wall, categories: json.categories, categorizing: json.categorizing } : s));
         else {
           version.current = json.version;
           setState(json);

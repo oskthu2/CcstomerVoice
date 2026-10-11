@@ -68,6 +68,13 @@ docker compose exec ollama ollama pull qwen2.5:7b
   without typing. You can still edit the text before you press **Skicka in**.
 - **🎤 Prata** uses the browser's speech recognition (sv-SE, Chrome/Edge/Safari). Browsers only allow
   the microphone on `https://` or `localhost`. On a tablet over plain LAN http, use the keyboard's own dictation instead.
+- **Two visualisations.** *Teman och tjänster*: themes float as clouds around the centre, with each theme's
+  Inera services gathered around it. *Kategorier*: every voice is linked to one or more predefined categories
+  (default: Patienter, Medarbetare, Infrastruktur). Voices that share categories float between them. Choose one view or
+  alternate between them in admin, press `V` on the wall, or lock a screen with `/wall?view=categories`.
+  The layout is a force simulation ([d3-force](https://d3js.org/d3-force)) rendered with React Flow.
+- **Categories (admin):** rename, recolour, describe (the description steers the AI), add or remove categories, then
+  *Kategorisera om alla röster*: the AI goes through the existing voices in batches of 30. Renaming keeps the links.
 - **The wall** tours automatically: an overview, then one theme at a time. When a new voice arrives, it flies
   to that voice and highlights it. `Space` pauses or resumes the tour. `/wall?tour=0` starts it paused.
 - **AI instructions (admin):** edit the instruction used to sort each voice and the theme-regrouping instruction,

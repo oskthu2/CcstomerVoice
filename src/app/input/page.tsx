@@ -32,6 +32,7 @@ export default function InputPage() {
   const [error, setError] = useState("");
   const [prefillNote, setPrefillNote] = useState("");
   const [insights, setInsights] = useState<ResultInsight[] | null>(null);
+  const [resultCats, setResultCats] = useState<{ name: string; color: string }[]>([]);
   const [listening, setListening] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
   const recRef = useRef<SpeechRec | null>(null);
@@ -51,7 +52,7 @@ export default function InputPage() {
 
   function reset() {
     setText(""); setAuthor(""); setRole(""); setOrganization(""); setError(""); setPrefillNote("");
-    setInsights(null); setPhase("form");
+    setInsights(null); setResultCats([]); setPhase("form");
   }
 
   // Suggest known organisations so the same one is spelt the same way in the results.
@@ -117,6 +118,7 @@ export default function InputPage() {
         const d = await r.json();
         if (d.statement.status === "done" || d.statement.status === "error") {
           setInsights(d.insights);
+          setResultCats(d.categories ?? []);
           break;
         }
       }
@@ -135,6 +137,14 @@ export default function InputPage() {
           <div className="result">
             {insights === null && <p>AI:n analyserar ditt uttalande …</p>}
             {insights?.length === 0 && <p>Vi har sparat din röst. AI:n hittade ingen direkt koppling till en Inera-produkt den här gången.</p>}
+            {resultCats.length > 0 && (
+              <div className="note">
+                Berör:{" "}
+                {resultCats.map((c) => (
+                  <span key={c.name} className="pill" style={{ background: c.color, marginRight: 6 }}>{c.name}</span>
+                ))}
+              </div>
+            )}
             {insights?.map((i) => (
               <div key={i.id} className={`result-item ${i.productStatus}`}>
                 <span className={`pill ${i.productStatus}`}>{i.productStatus === "current" ? "Befintlig" : "Framtida"}</span>{" "}

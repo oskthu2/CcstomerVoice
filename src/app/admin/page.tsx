@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import AiSettingsPanel from "@/components/AiSettingsPanel";
+import CategoriesPanel from "@/components/CategoriesPanel";
 import ProductCatalogPanel from "@/components/ProductCatalogPanel";
 import WallSettingsPanel from "@/components/WallSettingsPanel";
 import { useLiveState } from "@/lib/useLiveState";
@@ -52,11 +53,12 @@ export default function AdminPage() {
       if (!res.ok) throw new Error(json.error);
       if (action === "regroup" && !json.ok) throw new Error("Omgruppering kräver AI-nyckel och minst en insikt.");
       setMsg(
-        action === "test" ? `AI fungerar ✔ (${json.provider}, ${json.model}, ${json.ms} ms): ${json.insights.map((i: { product: string }) => i.product).join(", ") || "inga insikter"}`
+        action === "test" ? `AI fungerar ✔ (${json.provider}, ${json.model}, ${json.ms} ms): ${json.insights.map((i: { product: string }) => i.product).join(", ") || "inga insikter"} · kategorier: ${json.categories?.join(", ") || "inga"}`
         : action === "retry" ? `${json.retried} misslyckade röster köade igen.`
         : action === "seed" ? `${json.added} exempel köade för analys.`
         : action === "regroup" ? (json.ok ? "Teman omgrupperade." : "Omgruppering kräver AI-nyckel och minst en insikt.")
         : action === "reanalyze" ? `${json.queued} röster köade för omsortering.`
+        : action === "recategorize" ? `Kategoriserar om ${json.queued} röster.`
         : "Klart.",
       );
       return true;
@@ -120,12 +122,13 @@ export default function AdminPage() {
         <>
           <WallSettingsPanel token={token} current={state.wall} />
           <AiSettingsPanel token={token} demoMode={state.demoMode} progress={progress} act={act} />
+          <CategoriesPanel token={token} current={state.categories} voices={state.statements.length} categorizing={state.categorizing} act={act} />
           <ProductCatalogPanel token={token} voices={state.statements.length} sorting={progress.remaining > 0} act={act} />
         </>
       )}
       <table>
         <thead>
-          <tr><th>Röst</th><th>Avsändare</th><th>Insikter</th><th>Status</th><th /></tr>
+          <tr><th>Röst</th><th>Avsändare</th><th>Insikter</th><th>Kategorier</th><th>Status</th><th /></tr>
         </thead>
         <tbody>
           {statements.map((s) => (
@@ -141,6 +144,12 @@ export default function AdminPage() {
                     <span className={`pill ${i.productStatus}`}>{i.productStatus === "current" ? "B" : "F"}</span> <b>{i.product}</b>: {i.need}
                   </div>
                 ))}
+              </td>
+              <td>
+                {(s.categories ?? []).map((id) => {
+                  const c = state!.categories.find((x) => x.id === id);
+                  return c ? <span key={id} className="pill" style={{ background: c.color, marginRight: 4 }}>{c.name}</span> : null;
+                })}
               </td>
               <td className={`status ${s.status}`}>
                 {s.status}

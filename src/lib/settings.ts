@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DATA_DIR } from "./config";
+import type { Category } from "./types";
 
 /**
  * AI instructions editable from /admin. The catalogue, current themes and the
@@ -8,6 +9,8 @@ import { DATA_DIR } from "./config";
  * `{maxThemes}` and `{maxInsights}` are replaced with the numeric settings.
  */
 export type WallTheme = "dark" | "light" | "auto";
+/** Which visualisation the wall shows; "both" alternates every `viewSec`. */
+export type WallView = "themes" | "categories" | "both";
 
 /** Appearance and camera-tour pacing of the big-screen wall (seconds). */
 export interface WallSettings {
@@ -15,6 +18,8 @@ export interface WallSettings {
   overviewSec: number;
   themeSec: number;
   freshSec: number;
+  view: WallView;
+  viewSec: number;
 }
 
 export interface Settings {
@@ -23,9 +28,16 @@ export interface Settings {
   maxThemes: number;
   maxInsights: number;
   wall: WallSettings;
+  categories: Category[];
 }
 
-export const DEFAULT_WALL: WallSettings = { theme: "dark", overviewSec: 14, themeSec: 9, freshSec: 14 };
+export const DEFAULT_CATEGORIES: Category[] = [
+  { id: "patienter", name: "Patienter", description: "Invånare, patienter och närstående: tillgång till vård och egen information, delaktighet, egenvård.", color: "#19a7a8" },
+  { id: "medarbetare", name: "Medarbetare", description: "Vård- och omsorgspersonal: arbetsmiljö, administration, kompetens och verktyg i vardagen.", color: "#d9622b" },
+  { id: "infrastruktur", name: "Infrastruktur", description: "System och informationsdelning, standarder, säkerhet, robusthet och nationell digital infrastruktur.", color: "#8a4fd1" },
+];
+
+export const DEFAULT_WALL: WallSettings = { theme: "dark", overviewSec: 14, themeSec: 9, freshSec: 14, view: "themes", viewSec: 90 };
 
 export const DEFAULT_ANALYZE = `Du är produktanalytiker på Inera, som utvecklar och förvaltar gemensamma digitala tjänster för regioner och kommuner i Sverige.
 Besökare på en konferens lämnar uttalanden om vårdens digitalisering. Din uppgift:
@@ -74,6 +86,7 @@ export const DEFAULT_SETTINGS: Settings = {
   maxThemes: 8,
   maxInsights: 4,
   wall: DEFAULT_WALL,
+  categories: DEFAULT_CATEGORIES,
 };
 
 const FILE = path.join(DATA_DIR, "settings.json");
@@ -83,7 +96,7 @@ export function getSettings(): Settings {
   if (!g.__cvSettings) {
     try {
       const saved = JSON.parse(fs.readFileSync(FILE, "utf8"));
-      g.__cvSettings = { ...DEFAULT_SETTINGS, ...saved, wall: { ...DEFAULT_WALL, ...saved.wall } };
+      g.__cvSettings = { ...DEFAULT_SETTINGS, ...saved, wall: { ...DEFAULT_WALL, ...saved.wall }, categories: saved.categories?.length ? saved.categories : DEFAULT_CATEGORIES };
     } catch {
       g.__cvSettings = { ...DEFAULT_SETTINGS };
     }
@@ -103,7 +116,30 @@ function cleanWall(input: Partial<WallSettings> | undefined, cur: WallSettings):
     overviewSec: clampInt(w.overviewSec, 3, 120, cur.overviewSec),
     themeSec: clampInt(w.themeSec, 3, 120, cur.themeSec),
     freshSec: clampInt(w.freshSec, 3, 120, cur.freshSec),
+    view: w.view === "categories" || w.view === "both" ? w.view : "themes",
+    viewSec: clampInt(w.viewSec, 15, 600, cur.viewSec),
   };
+}
+
+const slug = (s: string) =>
+  s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "kategori";
+
+function cleanCategories(input: unknown, cur: Category[]): Category[] {
+  if (!Array.isArray(input)) return cur;
+  const out: Category[] = [];
+  const ids = new Set<string>();
+  for (const raw of input as Partial<Category>[]) {
+    const name = String(raw?.name ?? "").trim().slice(0, 40);
+    if (!name || out.some((c) => c.name.toLowerCase() === name.toLowerCase())) continue;
+    // Keep the id when a category is renamed, so stored voices stay linked.
+    let id = String(raw.id ?? "").trim() || slug(name);
+    while (ids.has(id)) id += "-2";
+    ids.add(id);
+    const color = /^#[0-9a-f]{6}$/i.test(String(raw.color)) ? String(raw.color) : "#7a8a99";
+    out.push({ id, name, description: String(raw.description ?? "").trim().slice(0, 300), color });
+  }
+  if (!out.length) throw new Error("Det måste finnas minst en kategori.");
+  return out.slice(0, 8);
 }
 
 export function saveSettings(input: Partial<Omit<Settings, "wall">> & { wall?: Partial<WallSettings> }): Settings {
@@ -114,6 +150,7 @@ export function saveSettings(input: Partial<Omit<Settings, "wall">> & { wall?: P
     maxThemes: clampInt(input.maxThemes ?? cur.maxThemes, 2, 20, cur.maxThemes),
     maxInsights: clampInt(input.maxInsights ?? cur.maxInsights, 1, 10, cur.maxInsights),
     wall: cleanWall(input.wall, cur.wall),
+    categories: cleanCategories(input.categories, cur.categories),
   };
   fs.mkdirSync(DATA_DIR, { recursive: true });
   fs.writeFileSync(FILE, JSON.stringify(next, null, 2));
@@ -121,10 +158,10 @@ export function saveSettings(input: Partial<Omit<Settings, "wall">> & { wall?: P
   return next;
 }
 
-/** Restore the default AI instructions (wall settings are kept). */
+/** Restore the default AI instructions (wall settings and categories are kept). */
 export function resetSettings(): Settings {
-  const { wall } = getSettings();
-  return saveSettings({ ...DEFAULT_SETTINGS, wall });
+  const { wall, categories } = getSettings();
+  return saveSettings({ ...DEFAULT_SETTINGS, wall, categories });
 }
 
 export function fill(template: string, s: Settings) {

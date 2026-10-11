@@ -13,6 +13,8 @@ export interface Statement {
   author?: string;
   role?: string;
   organization?: string;
+  /** Ids of the predefined categories (e.g. patienter, medarbetare, infrastruktur) the AI linked this voice to. */
+  categories?: string[];
   source: "kiosk" | "example";
   createdAt: string;
   status: "pending" | "processing" | "done" | "error";
@@ -53,4 +55,12 @@ export interface SeedVoice {
   role: string;
   organization: string;
   text: string;
+}
+
+/** Predefined category for the alternative wall view; editable in /admin. */
+export interface Category {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
 }

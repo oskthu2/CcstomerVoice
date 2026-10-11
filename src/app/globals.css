@@ -118,24 +118,49 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 }
 .mm-root small { display: block; font-size: 15px; font-weight: 500; opacity: 0.85; margin-top: 6px; }
 .mm-theme {
-  width: 300px; padding: 18px 20px; border-radius: 20px; color: #fff;
+  width: 280px; min-height: 132px; padding: 18px 20px; display: flex; flex-direction: column; justify-content: center; border-radius: 20px; color: #fff;
   font-size: 23px; font-weight: 800; line-height: 1.2;
 }
 .mm-theme small { display: block; font-size: 14px; font-weight: 600; opacity: 0.85; margin-top: 4px; }
 .mm-product {
-  width: 380px; border-radius: 16px; background: var(--panel); color: var(--text);
+  width: 320px; border-radius: 16px; background: var(--panel); color: var(--text);
   border: 2px solid var(--border); overflow: hidden;
 }
 .mm-product.future { border-style: dashed; }
 .mm-product.fresh { animation: pulse 1.6s ease-out 3; border-color: #ffd666; }
 .mm-product header { padding: 12px 14px 8px; display: flex; flex-direction: column; gap: 6px; }
-.mm-product h3 { margin: 0; font-size: 20px; line-height: 1.2; }
+.mm-product h3 { margin: 0; font-size: 20px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .mm-product .meta { display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: 13px; }
 .mm-product ul { list-style: none; margin: 0; padding: 0 14px 12px; display: flex; flex-direction: column; gap: 8px; }
 .mm-product li { font-size: 14px; line-height: 1.3; border-left: 3px solid var(--border); padding-left: 8px; height: 54px; overflow: hidden; }
 .mm-product li em { display: block; color: var(--muted); font-style: normal; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mm-product .more { color: var(--muted); font-size: 12px; padding: 0 14px 10px; }
 .react-flow__handle { opacity: 0; }
+/* Edges run centre to centre: park the single handle in the middle of each node. */
+.react-flow__handle.center-handle { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 1px; height: 1px; min-width: 0; min-height: 0; border: 0; }
+/* Let cards glide to their new place when the cloud re-arranges. */
+.wall .react-flow__node { transition: transform 0.9s ease; }
+
+.mm-hub {
+  width: 280px; min-height: 120px; padding: 20px 24px; border-radius: 60px; color: #fff; text-align: center;
+  font-size: 30px; font-weight: 800; line-height: 1.15; display: flex; flex-direction: column; justify-content: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+.mm-hub small { display: block; font-size: 15px; font-weight: 600; opacity: 0.9; margin-top: 4px; }
+.mm-voice {
+  width: 250px; height: 112px; border-radius: 14px; background: var(--panel); color: var(--text);
+  border: 1px solid var(--border); padding: 10px 12px; overflow: hidden; display: flex; flex-direction: column; gap: 4px;
+}
+.mm-voice.fresh { animation: pulse 1.6s ease-out 3; border-color: #ffd666; }
+.mm-voice .dots { display: flex; gap: 4px; }
+.mm-voice .dots span { width: 10px; height: 10px; border-radius: 50%; }
+.mm-voice p { margin: 0; font-size: 13px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.mm-voice em { font-style: normal; font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.wall-legend { display: flex; flex-direction: column; gap: 8px; }
+.legend-row { display: grid; grid-template-columns: 16px 1fr auto; gap: 10px; align-items: center; border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; font-size: 18px; }
+.legend-row .swatch { width: 16px; height: 16px; border-radius: 50%; }
+.legend-row span:last-child { color: var(--muted); font-size: 14px; }
 
 /* ---------- Kiosk ---------- */
 .kiosk { min-height: 100%; display: flex; justify-content: center; padding: 32px 16px; }
@@ -205,3 +230,5 @@ th { background: #eaf0f3; }
 .catalog-row input, .catalog-row select { font: inherit; font-size: 14px; padding: 7px 9px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); width: 100%; }
 .catalog-row .btn { padding: 6px 0; }
 @media (max-width: 640px) { .slider { grid-template-columns: 1fr 56px; } .slider span { grid-column: 1 / -1; } }
+.catalog-row.cat-row { grid-template-columns: 56px minmax(140px, 1fr) minmax(260px, 3fr) 44px; min-width: 560px; }
+.catalog-row input[type=color] { padding: 2px; height: 36px; cursor: pointer; }

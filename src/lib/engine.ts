@@ -1,13 +1,20 @@
-import { analyzeStatement, regroup, type RawInsight } from "./ai";
+import { analyzeStatement, classifyStatements, regroup, type RawInsight } from "./ai";
 import { loadSeed, seedOnStart } from "./config";
 import { loadProducts } from "./products";
+import { getSettings } from "./settings";
 import { getState, mutate, newId } from "./store";
 import type { Insight, Product, Statement } from "./types";
 
 const g = globalThis as unknown as {
-  __cvEngine?: { queue: string[]; running: boolean; started: boolean; regroupAfter: boolean };
+  __cvEngine?: {
+    queue: string[];
+    running: boolean;
+    started: boolean;
+    regroupAfter: boolean;
+    categorizing?: { done: number; total: number } | null;
+  };
 };
-const engine = (g.__cvEngine ??= { queue: [], running: false, started: false, regroupAfter: false });
+const engine = (g.__cvEngine ??= { queue: [], running: false, started: false, regroupAfter: false, categorizing: null });
 
 const generation = () => getState().generation ?? 0;
 
@@ -147,11 +154,14 @@ async function processStatement(id: string) {
   mutate(() => (st.status = "processing"));
   const products = loadProducts();
   let raw: RawInsight[] | null = null;
+  let categories: string[] = [];
   let error = "";
   for (let attempt = 0; attempt < 3 && !raw; attempt++) {
     try {
       const themes = getState().themes.filter((t) => (t.gen ?? 0) === generation());
-      raw = await analyzeStatement(st.text, st, products, themes.map((t) => t.name));
+      const res = await analyzeStatement(st.text, st, products, themes.map((t) => t.name));
+      raw = res.insights;
+      categories = res.categories;
     } catch (e) {
       error = e instanceof Error ? e.message : String(e);
       console.error(`[engine] analyze failed (attempt ${attempt + 1})`, error);
@@ -169,6 +179,7 @@ async function processStatement(id: string) {
     s.insights = s.insights.filter((x) => x.statementId !== id);
     for (const r of raw) s.insights.push(toInsight(r, id, s, products));
     pruneThemes(s);
+    cur.categories = categories;
     cur.status = "done";
     cur.error = undefined;
   });
@@ -212,6 +223,46 @@ function toInsight(r: RawInsight, statementId: string, s: ReturnType<typeof getS
 function pruneThemes(s: ReturnType<typeof getState>) {
   const used = new Set(s.insights.map((i) => i.themeId));
   s.themes = s.themes.filter((t) => used.has(t.id));
+}
+
+const CLASSIFY_BATCH = 30;
+
+/**
+ * Re-categorise every voice after the categories were edited in /admin.
+ * One AI call per batch of voices; the wall updates as each batch lands.
+ */
+export async function recategorizeAll() {
+  if (engine.categorizing) throw new Error("Kategoriseringen pågår redan.");
+  const items = getState().statements.map((s) => ({ id: s.id, text: s.text }));
+  engine.categorizing = { done: 0, total: items.length };
+  void (async () => {
+    try {
+      for (let i = 0; i < items.length; i += CLASSIFY_BATCH) {
+        const batch = items.slice(i, i + CLASSIFY_BATCH);
+        let result: Map<string, string[]> | null = null;
+        for (let attempt = 0; attempt < 3 && !result; attempt++) {
+          try {
+            result = await classifyStatements(batch, getSettings().categories);
+          } catch (e) {
+            console.error(`[engine] classify failed (attempt ${attempt + 1})`, e instanceof Error ? e.message : e);
+            await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+          }
+        }
+        if (result) {
+          const r = result;
+          mutate((s) => s.statements.forEach((st) => r.has(st.id) && (st.categories = r.get(st.id))));
+        }
+        engine.categorizing!.done = Math.min(items.length, i + batch.length);
+      }
+    } finally {
+      engine.categorizing = null;
+    }
+  })();
+  return items.length;
+}
+
+export function categorizingProgress() {
+  return engine.categorizing;
 }
 
 export function queueLength() {

@@ -27,7 +27,11 @@ export function GET(req: Request) {
 export async function POST(req: Request) {
   if (!authorized(req)) return NextResponse.json({ error: UNAUTHORIZED_MSG }, { status: 401 });
   const body = await req.json().catch(() => ({}));
-  if (body.action === "reset") resetSettings();
-  else saveSettings(body.settings ?? {});
+  try {
+    if (body.action === "reset") resetSettings();
+    else saveSettings(body.settings ?? {});
+  } catch (e) {
+    return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 400 });
+  }
   return NextResponse.json(payload());
 }

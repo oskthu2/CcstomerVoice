@@ -2,7 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 import { ai, demoMode } from "./config";
 import { fill, getSettings } from "./settings";
-import type { Product, ProductStatus } from "./types";
+import type { Category, Product, ProductStatus } from "./types";
 
 export interface RawInsight {
   excerpt: string;
@@ -40,7 +40,21 @@ ${catalogText(products)}
 
 BEFINTLIGA TEMAN (återanvänd exakt stavning): ${themes.length ? themes.map((t) => `"${t}"`).join(", ") : "(inga ännu)"}
 
-SVARSFORMAT: svara ENDAST med JSON enligt {"insights":[{"excerpt":"","need":"","theme":"","product":"","product_status":"current","rationale":""}]}`;
+${categoriesText(st.categories)}
+
+SVARSFORMAT: svara ENDAST med JSON enligt {"insights":[{"excerpt":"","need":"","theme":"","product":"","product_status":"current","rationale":""}],"categories":["kategorinamn"]}`;
+}
+
+function categoriesText(categories: Category[]) {
+  return `KATEGORIER: ange i "categories" vilka av följande kategorier HELA uttalandet berör – en, flera eller ingen. Använd exakt namnen:
+${categories.map((c) => `- ${c.name}: ${c.description}`).join("\n")}`;
+}
+
+/** Map category names returned by the model back to stable category ids. */
+function toCategoryIds(names: unknown, categories: Category[]): string[] {
+  if (!Array.isArray(names)) return [];
+  const byName = new Map(categories.map((c) => [c.name.toLowerCase().trim(), c.id]));
+  return [...new Set(names.map((n) => byName.get(String(n).toLowerCase().trim())).filter((x): x is string => Boolean(x)))];
 }
 
 export function regroupSystemPrompt(products: Product[]) {
@@ -54,7 +68,7 @@ Varje insikts-id ska förekomma i exakt ett tema.`;
 }
 
 // JSON Schemas: enforced by Anthropic structured outputs, and spelled out in the prompts for OpenAI.
-const INSIGHTS_SCHEMA = {
+const INSIGHTS_BASE = {
   type: "object",
   properties: {
     insights: {
@@ -77,6 +91,18 @@ const INSIGHTS_SCHEMA = {
   required: ["insights"],
   additionalProperties: false,
 };
+
+/** Insight schema plus the voice's categories, constrained to the current category names. */
+function insightsSchema(categories: Category[]) {
+  return {
+    ...INSIGHTS_BASE,
+    properties: {
+      ...INSIGHTS_BASE.properties,
+      categories: { type: "array", items: { type: "string", enum: categories.map((c) => c.name) } },
+    },
+    required: ["insights", "categories"],
+  };
+}
 
 const REGROUP_SCHEMA = {
   type: "object",
@@ -181,27 +207,63 @@ export async function analyzeStatement(
   meta: { author?: string; role?: string; organization?: string },
   products: Product[],
   themes: string[],
-): Promise<RawInsight[]> {
-  if (demoMode) return keywordAnalyze(text);
+): Promise<{ insights: RawInsight[]; categories: string[] }> {
+  const { categories, maxInsights } = getSettings();
+  if (demoMode) return { insights: keywordAnalyze(text), categories: keywordCategories(text, categories) };
   const who = [meta.author, meta.role, meta.organization].filter(Boolean).join(", ");
-  const out = await chatJson<{ insights?: RawInsight[] }>(
+  const out = await chatJson<{ insights?: RawInsight[]; categories?: string[] }>(
     analyzeSystemPrompt(products, themes),
     `Uttalande${who ? ` (${who})` : ""}: "${text}"`,
-    INSIGHTS_SCHEMA,
+    insightsSchema(categories),
   );
-  return (out.insights ?? []).filter((i) => i && i.need && i.product && i.theme).slice(0, getSettings().maxInsights);
+  return {
+    insights: (out.insights ?? []).filter((i) => i && i.need && i.product && i.theme).slice(0, maxInsights),
+    categories: toCategoryIds(out.categories, categories),
+  };
+}
+
+/**
+ * Categorise many voices in one call (used after the categories are edited in /admin).
+ * Returns category ids per statement id.
+ */
+export async function classifyStatements(items: { id: string; text: string }[], categories: Category[]): Promise<Map<string, string[]>> {
+  if (demoMode) return new Map(items.map((i) => [i.id, keywordCategories(i.text, categories)]));
+  const system = `Du får uttalanden om vårdens digitalisering från besökare på en konferens.
+Avgör för VARJE uttalande vilka av kategorierna det berör – en, flera eller ingen. Använd exakt kategorinamnen.
+
+${categoriesText(categories)}
+
+SVARSFORMAT: svara ENDAST med JSON {"results":[{"id":"…","categories":["kategorinamn"]}]} med ett resultat per uttalande.`;
+  const out = await chatJson<{ results?: { id: string; categories: string[] }[] }>(system, JSON.stringify(items), {
+    type: "object",
+    properties: {
+      results: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: { id: { type: "string" }, categories: { type: "array", items: { type: "string", enum: categories.map((c) => c.name) } } },
+          required: ["id", "categories"],
+          additionalProperties: false,
+        },
+      },
+    },
+    required: ["results"],
+    additionalProperties: false,
+  });
+  return new Map((out.results ?? []).map((r) => [r.id, toCategoryIds(r.categories, categories)]));
 }
 
 /** Quick end-to-end check used by the admin "Testa AI" button. */
 export async function testAi(products: Product[]) {
   const t0 = Date.now();
-  const insights = await analyzeStatement(
+  const { insights, categories } = await analyzeStatement(
     "Vi vill att vuxna ska kunna utses till digitala ombud för andra vuxna inom sjukvården.",
     {},
     products,
     [],
   );
-  return { provider: ai.provider, model: ai.model, ms: Date.now() - t0, insights };
+  const names = getSettings().categories.filter((c) => categories.includes(c.id)).map((c) => c.name);
+  return { provider: ai.provider, model: ai.model, ms: Date.now() - t0, insights, categories: names };
 }
 
 /** Consolidate themes (and synonym future products) across all insights. */
@@ -235,6 +297,19 @@ const RULES: { re: RegExp; theme: string; product: string; status: ProductStatus
   { re: /apotek|läkemedel/i, theme: "Robust och säker infrastruktur", product: "Pascal", status: "current", need: "Säker läkemedelshantering" },
   { re: /välfärdsteknik|äldre|omsorg|kommun/i, theme: "Välfärdsteknik i omsorgen", product: "Hjälpmedelstjänsten", status: "current", need: "Välfärdsteknik som frigör tid i omsorgen" },
 ];
+
+// Demo-mode category matching: keywords for the default categories, otherwise the category's own name.
+const CATEGORY_KEYWORDS: Record<string, RegExp> = {
+  patienter: /patient|invånar|anhörig|närstående|egenvård|äldre|medborgar|brukare|egen hälsodata|tillgänglig/i,
+  medarbetare: /personal|medarbetar|arbetsmiljö|administrat|läkare|sjukskötersk|dokumentation|kompetens|profession|chef/i,
+  infrastruktur: /infrastruktur|interoperab|system|journal|standard|api|robust|cyber|plattform|data|säkerhet/i,
+};
+
+function keywordCategories(text: string, categories: Category[]): string[] {
+  return categories
+    .filter((c) => (CATEGORY_KEYWORDS[c.id] ?? new RegExp(c.name.replace(/[.*+?^${}()|[\]\\]/g, "").slice(0, 6), "i")).test(text))
+    .map((c) => c.id);
+}
 
 function keywordAnalyze(text: string): RawInsight[] {
   const sentences = text.split(/(?<=[.!?])\s+/);

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getSettings } from "@/lib/settings";
 import { getState } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -11,5 +12,6 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const insights = s.insights
     .filter((i) => i.statementId === id)
     .map((i) => ({ ...i, theme: s.themes.find((t) => t.id === i.themeId)?.name }));
-  return NextResponse.json({ statement, insights });
+  const categories = getSettings().categories.filter((c) => statement.categories?.includes(c.id)).map(({ name, color }) => ({ name, color }));
+  return NextResponse.json({ statement, insights, categories });
 }
