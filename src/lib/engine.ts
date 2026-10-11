@@ -22,12 +22,13 @@ export function ensureStarted() {
   for (const st of s.statements) if (st.status === "pending" || st.status === "processing") enqueue(st.id);
 }
 
-export function submitStatement(input: { text: string; author?: string; role?: string; source?: Statement["source"] }) {
+export function submitStatement(input: { text: string; author?: string; role?: string; organization?: string; source?: Statement["source"] }) {
   const st: Statement = {
     id: newId(),
     text: input.text.trim().slice(0, 2000),
     author: input.author?.trim().slice(0, 80) || undefined,
     role: input.role?.trim().slice(0, 120) || undefined,
+    organization: input.organization?.trim().replace(/\s+/g, " ").slice(0, 120) || undefined,
     source: input.source ?? "kiosk",
     createdAt: new Date().toISOString(),
     status: "pending",

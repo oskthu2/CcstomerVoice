@@ -12,6 +12,7 @@ export interface Statement {
   text: string;
   author?: string;
   role?: string;
+  organization?: string;
   source: "kiosk" | "example";
   createdAt: string;
   status: "pending" | "processing" | "done" | "error";
@@ -50,5 +51,6 @@ export interface State {
 export interface SeedVoice {
   author: string;
   role: string;
+  organization: string;
   text: string;
 }

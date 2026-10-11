@@ -131,7 +131,10 @@ export default function AdminPage() {
           {statements.map((s) => (
             <tr key={s.id}>
               <td style={{ maxWidth: 460 }}>{s.text}</td>
-              <td>{[s.author, s.role].filter(Boolean).join(", ")}<div className="status">{s.source === "example" ? "exempel" : "kiosk"}</div></td>
+              <td>
+                {[s.author, s.role].filter(Boolean).join(", ")}
+                {s.organization && <div><b>{s.organization}</b></div>}
+                <div className="status">{s.source === "example" ? "exempel" : "kiosk"}</div></td>
               <td>
                 {state!.insights.filter((i) => i.statementId === s.id).map((i) => (
                   <div key={i.id} style={{ marginBottom: 6 }}>

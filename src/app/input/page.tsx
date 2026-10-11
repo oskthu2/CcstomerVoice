@@ -26,6 +26,8 @@ export default function InputPage() {
   const [text, setText] = useState("");
   const [author, setAuthor] = useState("");
   const [role, setRole] = useState("");
+  const [organization, setOrganization] = useState("");
+  const [orgSuggestions, setOrgSuggestions] = useState<string[]>([]);
   const [phase, setPhase] = useState<Phase>("form");
   const [error, setError] = useState("");
   const [prefillNote, setPrefillNote] = useState("");
@@ -48,8 +50,18 @@ export default function InputPage() {
   }, [phase]);
 
   function reset() {
-    setText(""); setAuthor(""); setRole(""); setError(""); setPrefillNote("");
+    setText(""); setAuthor(""); setRole(""); setOrganization(""); setError(""); setPrefillNote("");
     setInsights(null); setPhase("form");
+  }
+
+  // Suggest known organisations so the same one is spelt the same way in the results.
+  async function loadOrgSuggestions() {
+    try {
+      const res = await fetch("/api/organizations", { cache: "no-store" });
+      setOrgSuggestions((await res.json()).organizations ?? []);
+    } catch {
+      /* suggestions are optional */
+    }
   }
 
   async function prefill() {
@@ -58,7 +70,7 @@ export default function InputPage() {
       const res = await fetch(`/api/examples/random?exclude=${lastExample.current}`, { cache: "no-store" });
       const v = await res.json();
       lastExample.current = v.index;
-      setText(v.text); setAuthor(v.author); setRole(v.role);
+      setText(v.text); setAuthor(v.author); setRole(v.role); setOrganization(v.organization ?? "");
       setPrefillNote(`Exempel ${v.index + 1}/${v.total} ur Dagens Medicin, ”Vårdens digitala vägval – 60 röster inför valet 2026”.`);
     } catch {
       setError("Kunde inte hämta ett exempel.");
@@ -92,7 +104,7 @@ export default function InputPage() {
       const res = await fetch("/api/statements", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ text, author, role }),
+        body: JSON.stringify({ text, author, role, organization }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "Något gick fel.");
@@ -154,8 +166,20 @@ export default function InputPage() {
         {prefillNote && <div className="note">{prefillNote}</div>}
         <div className="row">
           <input value={author} onChange={(e) => setAuthor(e.target.value)} placeholder="Namn (valfritt)" maxLength={80} />
-          <input value={role} onChange={(e) => setRole(e.target.value)} placeholder="Roll / organisation (valfritt)" maxLength={120} />
+          <input value={role} onChange={(e) => setRole(e.target.value)} placeholder="Roll, t.ex. sjuksköterska (valfritt)" maxLength={120} />
         </div>
+        <input
+          value={organization}
+          onChange={(e) => setOrganization(e.target.value)}
+          onFocus={loadOrgSuggestions}
+          placeholder="Organisation, t.ex. Region Stockholm eller Lunds kommun (valfritt)"
+          list="org-suggestions"
+          maxLength={120}
+          aria-label="Organisation"
+        />
+        <datalist id="org-suggestions">
+          {orgSuggestions.map((o) => <option key={o} value={o} />)}
+        </datalist>
         {error && <div className="error">{error}</div>}
         <div className="actions">
           {speechSupported && (

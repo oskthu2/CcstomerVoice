@@ -178,12 +178,12 @@ async function chatJson<T>(system: string, user: string, schema: Record<string, 
 
 export async function analyzeStatement(
   text: string,
-  meta: { author?: string; role?: string },
+  meta: { author?: string; role?: string; organization?: string },
   products: Product[],
   themes: string[],
 ): Promise<RawInsight[]> {
   if (demoMode) return keywordAnalyze(text);
-  const who = [meta.author, meta.role].filter(Boolean).join(", ");
+  const who = [meta.author, meta.role, meta.organization].filter(Boolean).join(", ");
   const out = await chatJson<{ insights?: RawInsight[] }>(
     analyzeSystemPrompt(products, themes),
     `Uttalande${who ? ` (${who})` : ""}: "${text}"`,

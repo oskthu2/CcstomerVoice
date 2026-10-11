@@ -6,6 +6,6 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const text = typeof body.text === "string" ? body.text.trim() : "";
   if (text.length < 5) return NextResponse.json({ error: "Texten är för kort." }, { status: 400 });
-  const st = submitStatement({ text, author: body.author, role: body.role, source: "kiosk" });
+  const st = submitStatement({ text, author: body.author, role: body.role, organization: body.organization, source: "kiosk" });
   return NextResponse.json({ id: st.id });
 }

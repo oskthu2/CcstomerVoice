@@ -62,6 +62,8 @@ docker compose exec ollama ollama pull qwen2.5:7b
 
 ## Running it live
 
+- **Organisation** is its own field on the kiosk (next to name and role). It suggests the 21 regions, SKR, Inera and
+  organisations entered earlier, so the same organisation is spelt the same way, and it has its own column in the CSV export.
 - **🎲 Förifyll** on the kiosk fills in a random voice from the Dagens Medicin article, so you can demo
   without typing. You can still edit the text before you press **Skicka in**.
 - **🎤 Prata** uses the browser's speech recognition (sv-SE, Chrome/Edge/Safari). Browsers only allow
@@ -98,7 +100,7 @@ it and then run `docker compose restart app`. **Check the names and descriptions
 
 ## Example data
 
-`data/seed/dagens-medicin-2026.json` holds 63 statements (name, role, text) extracted from
+`data/seed/dagens-medicin-2026.json` holds 63 statements (name, role, organisation, text) extracted from
 *Dagens Medicin, "Vårdens digitala vägval – 60 röster inför valet 2026" (4 May 2026)*.
 
 ## Development without Docker

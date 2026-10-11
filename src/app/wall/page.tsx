@@ -2,6 +2,7 @@
 import dynamic from "next/dynamic";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState } from "react";
+import { who } from "@/lib/format";
 import { useLiveState } from "@/lib/useLiveState";
 
 const MindMap = dynamic(() => import("@/components/MindMap"), { ssr: false });
@@ -61,7 +62,7 @@ export default function WallPage() {
             return (
               <div className="feed-item" key={s.id}>
                 ”{s.text.length > 180 ? s.text.slice(0, 180) + " …" : s.text}”
-                <div className="who">{[s.author, s.role].filter(Boolean).join(", ") || "Anonym besökare"}</div>
+                <div className="who">{who(s)}</div>
                 <div className="tags">
                   {s.status !== "done" && <span className="tag">{s.status === "error" ? "fel vid analys" : "analyseras …"}</span>}
                   {tags.map((t) => (

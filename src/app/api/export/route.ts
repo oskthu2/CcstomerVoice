@@ -11,11 +11,11 @@ export function GET(req: Request) {
   const s = getState();
   const format = new URL(req.url).searchParams.get("format") ?? "json";
   if (format === "csv") {
-    const header = ["tema", "produkt", "status", "behov", "citat", "motivering", "avsandare", "roll", "uttalande", "tid"];
+    const header = ["tema", "produkt", "status", "behov", "citat", "motivering", "avsandare", "roll", "organisation", "uttalande", "tid"];
     const rows = s.insights.map((i) => {
       const st = s.statements.find((x) => x.id === i.statementId);
       const theme = s.themes.find((t) => t.id === i.themeId)?.name;
-      return [theme, i.product, i.productStatus === "current" ? "befintlig" : "framtida", i.need, i.excerpt, i.rationale, st?.author, st?.role, st?.text, i.createdAt];
+      return [theme, i.product, i.productStatus === "current" ? "befintlig" : "framtida", i.need, i.excerpt, i.rationale, st?.author, st?.role, st?.organization, st?.text, i.createdAt];
     });
     const csv = "﻿" + [header, ...rows].map((r) => r.map(csvCell).join(";")).join("\r\n");
     return new Response(csv, {

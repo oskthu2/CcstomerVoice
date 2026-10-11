@@ -1,4 +1,5 @@
 import type { Edge, Node } from "@xyflow/react";
+import { who } from "./format";
 import type { Insight, ProductStatus, Statement, Theme } from "./types";
 
 export const THEME_COLORS = ["#1f9d8b", "#3b82f6", "#d9622b", "#b4369f", "#c99a06", "#0e8fa8", "#d6335a", "#5f9a1f", "#7c4ddb", "#2d7fc1"];
@@ -35,7 +36,7 @@ export function buildGraph(themes: Theme[], insights: Insight[], statements: Sta
           const sorted = [...list].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
           const quotes = sorted.slice(0, QUOTES_PER_PRODUCT).map((x) => {
             const st = stById.get(x.statementId);
-            return { id: x.id, need: x.need, who: [st?.author, st?.role].filter(Boolean).join(", ") || "Anonym besökare" };
+            return { id: x.id, need: x.need, who: who(st) };
           });
           const h = productHeight(quotes.length, list.length > quotes.length);
           return { name, status: list[0].productStatus, count: list.length, quotes, h, fresh: list.some((x) => fresh.has(x.id)) };
