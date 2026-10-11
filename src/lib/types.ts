@@ -31,6 +31,10 @@ export interface Insight {
   product: string;
   productStatus: ProductStatus;
   rationale?: string;
+  /** Ids of the benefit types (e.g. kvalitet, arbetsmiljo, ekonomi) this need would deliver. */
+  benefits?: string[];
+  /** For economic benefit: whether it frees up time or other resources. */
+  economic?: "time" | "resources";
   createdAt: string;
 }
 

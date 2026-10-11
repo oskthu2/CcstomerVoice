@@ -8,6 +8,8 @@ interface ResultInsight {
   productStatus: "current" | "future";
   theme?: string;
   rationale?: string;
+  benefitNames?: string[];
+  economic?: "time" | "resources";
 }
 
 type Phase = "form" | "sending" | "result";
@@ -151,6 +153,12 @@ export default function InputPage() {
                 <b>{i.product}</b>
                 <div>{i.need}</div>
                 {i.theme && <div className="note">Tema: {i.theme}</div>}
+                {(i.benefitNames?.length ?? 0) > 0 && (
+                  <div className="note">
+                    Nytta: {i.benefitNames!.join(", ")}
+                    {i.economic && ` – ${i.economic === "time" ? "frigjord tid" : "frigjorda resurser"}`}
+                  </div>
+                )}
               </div>
             ))}
           </div>

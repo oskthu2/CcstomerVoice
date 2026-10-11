@@ -3,7 +3,7 @@ import "@xyflow/react/dist/style.css";
 import { Handle, Position, ReactFlow, ReactFlowProvider, useReactFlow, type Node, type NodeProps } from "@xyflow/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  buildCategoryGraph, buildThemeGraph,
+  buildCategoryGraph, buildThemeGraph, buildValueGraph, type ValueCardData,
   type HubData, type VennCircleData, type VennLabelData, type ProductData, type RootData, type ThemeData, type VoiceData,
 } from "@/lib/layout";
 import type { Category, Insight, Statement, Theme } from "@/lib/types";
@@ -15,7 +15,7 @@ export interface TourTiming {
   freshSec: number;
 }
 
-export type MapView = "themes" | "categories";
+export type MapView = "themes" | "categories" | "value";
 
 // One invisible handle in the middle of every node: edges run centre to centre,
 // which suits a free-floating cloud better than fixed left/right ports.
@@ -99,14 +99,33 @@ function VennCircleNode({ data }: NodeProps<Node<VennCircleData>>) {
 
 function VennLabelNode({ data }: NodeProps<Node<VennLabelData>>) {
   return (
-    <div className="mm-venn-label" style={{ color: data.color }}>
+    <div className={`mm-venn-label ${data.name.length > 18 ? "long" : ""}`} style={{ color: data.color }}>
       {data.name}
-      <small>{data.count} {data.count === 1 ? "röst" : "röster"}</small>
+      <small>{data.count} {(data.unit ?? ["röst", "röster"])[data.count === 1 ? 0 : 1]}</small>
     </div>
   );
 }
 
-const nodeTypes = { root: RootNode, theme: ThemeNode, product: ProductNode, hub: HubNode, voice: VoiceNode, vennCircle: VennCircleNode, vennLabel: VennLabelNode };
+function ValueCardNode({ data }: NodeProps<Node<ValueCardData>>) {
+  return (
+    <div className={`mm-value ${data.status} ${data.fresh ? "fresh" : ""}`}>
+      <div className="dots">
+        {data.colors.map((c, i) => <span key={i} style={{ background: c }} />)}
+      </div>
+      <h3>{data.name}</h3>
+      <div className="meta">
+        {data.status === "future" && <span className="pill future">Möjlighet</span>}
+        <span>{data.count} {data.count === 1 ? "behov" : "behov"}</span>
+        {data.time > 0 && <span className="chip">⏱ Frigjord tid</span>}
+        {data.resources > 0 && <span className="chip">◎ Frigjorda resurser</span>}
+      </div>
+      <p>{data.need}</p>
+      <Center />
+    </div>
+  );
+}
+
+const nodeTypes = { root: RootNode, theme: ThemeNode, product: ProductNode, hub: HubNode, voice: VoiceNode, vennCircle: VennCircleNode, vennLabel: VennLabelNode, valueCard: ValueCardNode };
 
 interface Props {
   view: MapView;
@@ -114,11 +133,12 @@ interface Props {
   insights: Insight[];
   statements: Statement[];
   categories: Category[];
+  benefits: Category[];
   tour: boolean;
   timing: TourTiming;
 }
 
-function MindMapInner({ view, themes, insights, statements, categories, tour, timing }: Props) {
+function MindMapInner({ view, themes, insights, statements, categories, benefits, tour, timing }: Props) {
   const flow = useReactFlow();
   const timingRef = useRef(timing);
   timingRef.current = timing;
@@ -129,7 +149,7 @@ function MindMapInner({ view, themes, insights, statements, categories, tour, ti
   const focusUntil = useRef(0);
   const pendingFocus = useRef<string[] | null>(null);
   // Last box centres per view: the next layout starts from them, so the cloud drifts instead of jumping.
-  const prev = useRef<Record<MapView, Map<string, { x: number; y: number }>>>({ themes: new Map(), categories: new Map() });
+  const prev = useRef<Record<MapView, Map<string, { x: number; y: number }>>>({ themes: new Map(), categories: new Map(), value: new Map() });
 
   // Detect newly arrived insights / categorised voices → highlight them and fly the camera there.
   const doneVoiceIds = statements.filter((s) => s.status === "done").map((s) => s.id).join(",");
@@ -150,10 +170,13 @@ function MindMapInner({ view, themes, insights, statements, categories, tour, ti
     setFreshVoices(new Set(newVoices));
     const freshMs = timingRef.current.freshSec * 1000;
     focusUntil.current = Date.now() + freshMs;
+    const lastIns = newIns[newIns.length - 1];
     pendingFocus.current =
       view === "themes"
-        ? newIns.length ? [`group:${newIns[newIns.length - 1].themeId}`] : null
-        : newVoices.length ? [`v:${newVoices[newVoices.length - 1]}`] : null;
+        ? lastIns ? [`group:${lastIns.themeId}`] : null
+        : view === "value"
+          ? lastIns ? [`b:${lastIns.product}`] : null
+          : newVoices.length ? [`v:${newVoices[newVoices.length - 1]}`] : null;
     const t = setTimeout(() => {
       setFreshInsights(new Set());
       setFreshVoices(new Set());
@@ -166,10 +189,12 @@ function MindMapInner({ view, themes, insights, statements, categories, tour, ti
     const g =
       view === "themes"
         ? buildThemeGraph(themes, insights, statements, freshInsights, prev.current.themes)
-        : buildCategoryGraph(categories, statements, freshVoices, prev.current.categories);
+        : view === "value"
+          ? buildValueGraph(benefits, insights, freshInsights, prev.current.value)
+          : buildCategoryGraph(categories, statements, freshVoices, prev.current.categories);
     prev.current[view] = g.centres;
     return g;
-  }, [view, themes, insights, statements, categories, freshInsights, freshVoices]);
+  }, [view, themes, insights, statements, categories, benefits, freshInsights, freshVoices]);
   const graphRef = useRef(graph);
   graphRef.current = graph;
 

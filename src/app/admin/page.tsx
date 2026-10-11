@@ -59,6 +59,7 @@ export default function AdminPage() {
         : action === "regroup" ? (json.ok ? "Teman omgrupperade." : "Omgruppering kräver AI-nyckel och minst en insikt.")
         : action === "reanalyze" ? `${json.queued} röster köade för omsortering.`
         : action === "recategorize" ? `Kategoriserar om ${json.queued} röster.`
+        : action === "reassessBenefits" ? `Bedömer nyttan för ${json.queued} behov.`
         : "Klart.",
       );
       return true;
@@ -123,6 +124,7 @@ export default function AdminPage() {
           <WallSettingsPanel token={token} current={state.wall} />
           <AiSettingsPanel token={token} demoMode={state.demoMode} progress={progress} act={act} />
           <CategoriesPanel token={token} current={state.categories} voices={state.statements.length} categorizing={state.categorizing} act={act} />
+          <CategoriesPanel kind="benefits" token={token} current={state.benefits} voices={state.insights.length} categorizing={state.assessing} act={act} />
           <ProductCatalogPanel token={token} voices={state.statements.length} sorting={progress.remaining > 0} act={act} />
         </>
       )}
@@ -142,6 +144,12 @@ export default function AdminPage() {
                 {state!.insights.filter((i) => i.statementId === s.id).map((i) => (
                   <div key={i.id} style={{ marginBottom: 6 }}>
                     {i.productStatus === "future" && <span className="pill future">Möjlighet</span>} <b>{i.product}</b>: {i.need}
+                    {(i.benefits?.length ?? 0) > 0 && (
+                      <div className="note">
+                        Nytta: {i.benefits!.map((id) => state!.benefits.find((b) => b.id === id)?.name).filter(Boolean).join(", ")}
+                        {i.economic && ` (${i.economic === "time" ? "frigjord tid" : "frigjorda resurser"})`}
+                      </div>
+                    )}
                   </div>
                 ))}
               </td>

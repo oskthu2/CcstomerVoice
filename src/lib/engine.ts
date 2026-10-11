@@ -1,4 +1,4 @@
-import { analyzeStatement, classifyStatements, regroup, type RawInsight } from "./ai";
+import { analyzeStatement, classifyBenefits, classifyStatements, regroup, toCategoryIds, toEconomic, type RawInsight } from "./ai";
 import { loadSeed, seedOnStart } from "./config";
 import { loadProducts } from "./products";
 import { getSettings } from "./settings";
@@ -12,6 +12,7 @@ const g = globalThis as unknown as {
     started: boolean;
     regroupAfter: boolean;
     categorizing?: { done: number; total: number } | null;
+    assessing?: { done: number; total: number } | null;
   };
 };
 const engine = (g.__cvEngine ??= { queue: [], running: false, started: false, regroupAfter: false, categorizing: null });
@@ -216,6 +217,8 @@ function toInsight(r: RawInsight, statementId: string, s: ReturnType<typeof getS
     product: name,
     productStatus: status,
     rationale: r.rationale?.trim(),
+    benefits: toCategoryIds(r.benefits, getSettings().benefits),
+    economic: toEconomic(r.economic),
     createdAt: new Date().toISOString(),
   };
 }
@@ -259,6 +262,52 @@ export async function recategorizeAll() {
     }
   })();
   return items.length;
+}
+
+/**
+ * Re-assess the benefit of every need (insight) – after the benefit types were edited in /admin,
+ * or once for insights created before the value view existed.
+ */
+export async function reassessBenefitsAll() {
+  if (engine.assessing) throw new Error("Nyttobedömningen pågår redan.");
+  const items = getState().insights.map((i) => ({ id: i.id, need: i.need, product: i.product, excerpt: i.excerpt }));
+  engine.assessing = { done: 0, total: items.length };
+  void (async () => {
+    try {
+      for (let i = 0; i < items.length; i += CLASSIFY_BATCH) {
+        const batch = items.slice(i, i + CLASSIFY_BATCH);
+        let result: Map<string, { benefits: string[]; economic?: "time" | "resources" }> | null = null;
+        for (let attempt = 0; attempt < 3 && !result; attempt++) {
+          try {
+            result = await classifyBenefits(batch, getSettings().benefits);
+          } catch (e) {
+            console.error(`[engine] benefit assessment failed (attempt ${attempt + 1})`, e instanceof Error ? e.message : e);
+            await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+          }
+        }
+        if (result) {
+          const r = result;
+          mutate((s) =>
+            s.insights.forEach((ins) => {
+              const v = r.get(ins.id);
+              if (v) {
+                ins.benefits = v.benefits;
+                ins.economic = v.economic;
+              }
+            }),
+          );
+        }
+        engine.assessing!.done = Math.min(items.length, i + batch.length);
+      }
+    } finally {
+      engine.assessing = null;
+    }
+  })();
+  return items.length;
+}
+
+export function assessingProgress() {
+  return engine.assessing;
 }
 
 export function categorizingProgress() {

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { authorized, UNAUTHORIZED_MSG } from "@/lib/auth";
 import { testAi } from "@/lib/ai";
 import { loadProducts } from "@/lib/products";
-import { deleteStatement, ensureStarted, reanalyzeAll, recategorizeAll, regroupThemes, resetAll, retryFailed, seedExamples } from "@/lib/engine";
+import { deleteStatement, ensureStarted, reanalyzeAll, reassessBenefitsAll, recategorizeAll, regroupThemes, resetAll, retryFailed, seedExamples } from "@/lib/engine";
 
 export async function POST(req: Request) {
   if (!authorized(req)) return NextResponse.json({ error: UNAUTHORIZED_MSG }, { status: 401 });
@@ -23,6 +23,8 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: true });
       case "test":
         return NextResponse.json({ ok: true, ...(await testAi(loadProducts())) });
+      case "reassessBenefits":
+        return NextResponse.json({ ok: true, queued: await reassessBenefitsAll() });
       case "recategorize":
         return NextResponse.json({ ok: true, queued: await recategorizeAll() });
       case "retry":

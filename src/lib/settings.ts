@@ -10,7 +10,7 @@ import type { Category } from "./types";
  */
 export type WallTheme = "dark" | "light" | "auto";
 /** Which visualisation the wall shows; "both" alternates every `viewSec`. */
-export type WallView = "themes" | "categories" | "both";
+export type WallView = "themes" | "categories" | "value" | "both";
 
 /** Appearance and camera-tour pacing of the big-screen wall (seconds). */
 export interface WallSettings {
@@ -29,7 +29,15 @@ export interface Settings {
   maxInsights: number;
   wall: WallSettings;
   categories: Category[];
+  /** Benefit types for the value view (same shape as categories). */
+  benefits: Category[];
 }
+
+export const DEFAULT_BENEFITS: Category[] = [
+  { id: "kvalitet", name: "Kvalitet & patientsäkerhet", description: "Bättre vårdkvalitet, färre fel och risker, säkrare och mer jämlik vård för patienten.", color: "#19a7a8" },
+  { id: "arbetsmiljo", name: "Arbetsmiljö & utvecklingsförmåga", description: "Bättre arbetsmiljö, mindre stress, ökad kompetens och förmåga att utveckla verksamheten.", color: "#d9622b" },
+  { id: "ekonomi", name: "Ekonomisk nytta", description: "Frigjord tid (t.ex. mindre administration och dubbelarbete) eller frigjorda resurser (t.ex. lägre kostnader, bättre kapacitetsutnyttjande).", color: "#c99a06" },
+];
 
 export const DEFAULT_CATEGORIES: Category[] = [
   { id: "patienter", name: "Patienter", description: "Invånare, patienter och närstående: tillgång till vård och egen information, delaktighet, egenvård.", color: "#19a7a8" },
@@ -87,6 +95,7 @@ export const DEFAULT_SETTINGS: Settings = {
   maxInsights: 4,
   wall: DEFAULT_WALL,
   categories: DEFAULT_CATEGORIES,
+  benefits: DEFAULT_BENEFITS,
 };
 
 const FILE = path.join(DATA_DIR, "settings.json");
@@ -96,7 +105,7 @@ export function getSettings(): Settings {
   if (!g.__cvSettings) {
     try {
       const saved = JSON.parse(fs.readFileSync(FILE, "utf8"));
-      g.__cvSettings = { ...DEFAULT_SETTINGS, ...saved, wall: { ...DEFAULT_WALL, ...saved.wall }, categories: saved.categories?.length ? saved.categories : DEFAULT_CATEGORIES };
+      g.__cvSettings = { ...DEFAULT_SETTINGS, ...saved, wall: { ...DEFAULT_WALL, ...saved.wall }, categories: saved.categories?.length ? saved.categories : DEFAULT_CATEGORIES, benefits: saved.benefits?.length ? saved.benefits : DEFAULT_BENEFITS };
     } catch {
       g.__cvSettings = { ...DEFAULT_SETTINGS };
     }
@@ -116,7 +125,7 @@ function cleanWall(input: Partial<WallSettings> | undefined, cur: WallSettings):
     overviewSec: clampInt(w.overviewSec, 3, 120, cur.overviewSec),
     themeSec: clampInt(w.themeSec, 3, 120, cur.themeSec),
     freshSec: clampInt(w.freshSec, 3, 120, cur.freshSec),
-    view: w.view === "categories" || w.view === "both" ? w.view : "themes",
+    view: w.view === "categories" || w.view === "value" || w.view === "both" ? w.view : "themes",
     viewSec: clampInt(w.viewSec, 15, 600, cur.viewSec),
   };
 }
@@ -124,7 +133,7 @@ function cleanWall(input: Partial<WallSettings> | undefined, cur: WallSettings):
 const slug = (s: string) =>
   s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "kategori";
 
-function cleanCategories(input: unknown, cur: Category[]): Category[] {
+function cleanCategories(input: unknown, cur: Category[], max = 8): Category[] {
   if (!Array.isArray(input)) return cur;
   const out: Category[] = [];
   const ids = new Set<string>();
@@ -139,7 +148,7 @@ function cleanCategories(input: unknown, cur: Category[]): Category[] {
     out.push({ id, name, description: String(raw.description ?? "").trim().slice(0, 300), color });
   }
   if (!out.length) throw new Error("Det måste finnas minst en kategori.");
-  return out.slice(0, 8);
+  return out.slice(0, max);
 }
 
 export function saveSettings(input: Partial<Omit<Settings, "wall">> & { wall?: Partial<WallSettings> }): Settings {
@@ -151,6 +160,7 @@ export function saveSettings(input: Partial<Omit<Settings, "wall">> & { wall?: P
     maxInsights: clampInt(input.maxInsights ?? cur.maxInsights, 1, 10, cur.maxInsights),
     wall: cleanWall(input.wall, cur.wall),
     categories: cleanCategories(input.categories, cur.categories),
+    benefits: cleanCategories(input.benefits, cur.benefits, 3), // Venn diagram: at most three circles
   };
   fs.mkdirSync(DATA_DIR, { recursive: true });
   fs.writeFileSync(FILE, JSON.stringify(next, null, 2));
@@ -160,8 +170,8 @@ export function saveSettings(input: Partial<Omit<Settings, "wall">> & { wall?: P
 
 /** Restore the default AI instructions (wall settings and categories are kept). */
 export function resetSettings(): Settings {
-  const { wall, categories } = getSettings();
-  return saveSettings({ ...DEFAULT_SETTINGS, wall, categories });
+  const { wall, categories, benefits } = getSettings();
+  return saveSettings({ ...DEFAULT_SETTINGS, wall, categories, benefits });
 }
 
 export function fill(template: string, s: Settings) {

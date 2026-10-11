@@ -12,6 +12,8 @@ export interface LiveState {
   wall: WallSettings;
   categories: Category[];
   categorizing: { done: number; total: number } | null;
+  benefits: Category[];
+  assessing: { done: number; total: number } | null;
   statements: Statement[];
   insights: Insight[];
   themes: Theme[];
@@ -29,7 +31,7 @@ export function useLiveState(intervalMs = 2000) {
         const res = await fetch(`/api/state?since=${version.current}`, { cache: "no-store" });
         const json = await res.json();
         if (!alive) return;
-        if (json.unchanged) setState((s) => (s ? { ...s, queue: json.queue, wall: json.wall, categories: json.categories, categorizing: json.categorizing } : s));
+        if (json.unchanged) setState((s) => (s ? { ...s, queue: json.queue, wall: json.wall, categories: json.categories, categorizing: json.categorizing, benefits: json.benefits, assessing: json.assessing } : s));
         else {
           version.current = json.version;
           setState(json);

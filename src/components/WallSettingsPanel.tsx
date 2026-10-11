@@ -17,7 +17,8 @@ const THEMES: { value: WallTheme; label: string }[] = [
 const VIEWS: { value: WallView; label: string }[] = [
   { value: "themes", label: "Teman och tjänster" },
   { value: "categories", label: "Kategorier" },
-  { value: "both", label: "Växla mellan båda" },
+  { value: "value", label: "Värde" },
+  { value: "both", label: "Växla mellan alla" },
 ];
 
 const SLIDERS: { key: "overviewSec" | "themeSec" | "freshSec"; label: string; hint: string }[] = [
@@ -113,7 +114,7 @@ export default function WallSettingsPanel({ token, current }: Props) {
           </label>
         ))}
       </div>
-      <p className="note">På väggen: mellanslag pausar rundturen, V byter vy. Adressen /wall?view=categories låser en skärm till en vy.</p>
+      <p className="note">På väggen: mellanslag pausar rundturen, V byter vy. Adresserna /wall?view=themes, ?view=categories och ?view=value låser en skärm till en vy.</p>
       {status && <p className="note">{status}</p>}
     </section>
   );

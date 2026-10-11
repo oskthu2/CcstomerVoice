@@ -11,7 +11,11 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   if (!statement) return NextResponse.json({ error: "not found" }, { status: 404 });
   const insights = s.insights
     .filter((i) => i.statementId === id)
-    .map((i) => ({ ...i, theme: s.themes.find((t) => t.id === i.themeId)?.name }));
+    .map((i) => ({
+      ...i,
+      theme: s.themes.find((t) => t.id === i.themeId)?.name,
+      benefitNames: getSettings().benefits.filter((b) => i.benefits?.includes(b.id)).map((b) => b.name),
+    }));
   const categories = getSettings().categories.filter((c) => statement.categories?.includes(c.id)).map(({ name, color }) => ({ name, color }));
   return NextResponse.json({ statement, insights, categories });
 }

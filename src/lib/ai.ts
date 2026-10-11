@@ -11,6 +11,9 @@ export interface RawInsight {
   product: string;
   product_status: ProductStatus;
   rationale?: string;
+  /** Benefit names as returned by the model (mapped to ids by the engine). */
+  benefits?: string[];
+  economic?: string;
 }
 
 export interface RegroupResult {
@@ -42,7 +45,9 @@ BEFINTLIGA TEMAN (återanvänd exakt stavning): ${themes.length ? themes.map((t)
 
 ${categoriesText(st.categories)}
 
-SVARSFORMAT: svara ENDAST med JSON enligt {"insights":[{"excerpt":"","need":"","theme":"","product":"","product_status":"current","rationale":""}],"categories":["kategorinamn"]}`;
+${benefitsText(st.benefits)}
+
+SVARSFORMAT: svara ENDAST med JSON enligt {"insights":[{"excerpt":"","need":"","theme":"","product":"","product_status":"current","rationale":"","benefits":["nyttonamn"],"economic":""}],"categories":["kategorinamn"]}`;
 }
 
 function categoriesText(categories: Category[]) {
@@ -50,8 +55,22 @@ function categoriesText(categories: Category[]) {
 ${categories.map((c) => `- ${c.name}: ${c.description}`).join("\n")}`;
 }
 
+function benefitsText(benefits: Category[]) {
+  return `NYTTA: bedöm för VARJE insikt om den pekar på en nytta som kan tillgodogöras om behovet löses. Ange i "benefits" vilka av följande nyttor den till stor del ger – en, flera eller ingen (tom lista om nyttan är oklar). Använd exakt namnen:
+${benefits.map((c) => `- ${c.name}: ${c.description}`).join("\n")}
+Om nyttan är ekonomisk: ange i "economic" om den främst ger "${ECONOMIC.time}" eller "${ECONOMIC.resources}", annars "".`;
+}
+
+/** Labels for the two kinds of economic benefit. */
+export const ECONOMIC = { time: "frigjord tid", resources: "frigjorda resurser" } as const;
+
+export function toEconomic(v: unknown): "time" | "resources" | undefined {
+  const s = String(v ?? "").toLowerCase();
+  return s.includes("tid") ? "time" : s.includes("resurs") ? "resources" : undefined;
+}
+
 /** Map category names returned by the model back to stable category ids. */
-function toCategoryIds(names: unknown, categories: Category[]): string[] {
+export function toCategoryIds(names: unknown, categories: Category[]): string[] {
   if (!Array.isArray(names)) return [];
   const byName = new Map(categories.map((c) => [c.name.toLowerCase().trim(), c.id]));
   return [...new Set(names.map((n) => byName.get(String(n).toLowerCase().trim())).filter((x): x is string => Boolean(x)))];
@@ -93,11 +112,23 @@ const INSIGHTS_BASE = {
 };
 
 /** Insight schema plus the voice's categories, constrained to the current category names. */
-function insightsSchema(categories: Category[]) {
+function insightsSchema(categories: Category[], benefits: Category[]) {
+  const item = INSIGHTS_BASE.properties.insights.items;
   return {
     ...INSIGHTS_BASE,
     properties: {
-      ...INSIGHTS_BASE.properties,
+      insights: {
+        ...INSIGHTS_BASE.properties.insights,
+        items: {
+          ...item,
+          properties: {
+            ...item.properties,
+            benefits: { type: "array", items: { type: "string", enum: benefits.map((b) => b.name) } },
+            economic: { type: "string", enum: [ECONOMIC.time, ECONOMIC.resources, ""] },
+          },
+          required: [...item.required, "benefits", "economic"],
+        },
+      },
       categories: { type: "array", items: { type: "string", enum: categories.map((c) => c.name) } },
     },
     required: ["insights", "categories"],
@@ -208,18 +239,59 @@ export async function analyzeStatement(
   products: Product[],
   themes: string[],
 ): Promise<{ insights: RawInsight[]; categories: string[] }> {
-  const { categories, maxInsights } = getSettings();
-  if (demoMode) return { insights: keywordAnalyze(text), categories: keywordCategories(text, categories) };
+  const { categories, benefits, maxInsights } = getSettings();
+  if (demoMode) return { insights: keywordAnalyze(text).map((i) => ({ ...i, ...keywordBenefits(`${i.need} ${i.excerpt}`, benefits) })), categories: keywordCategories(text, categories) };
   const who = [meta.author, meta.role, meta.organization].filter(Boolean).join(", ");
   const out = await chatJson<{ insights?: RawInsight[]; categories?: string[] }>(
     analyzeSystemPrompt(products, themes),
     `Uttalande${who ? ` (${who})` : ""}: "${text}"`,
-    insightsSchema(categories),
+    insightsSchema(categories, benefits),
   );
   return {
     insights: (out.insights ?? []).filter((i) => i && i.need && i.product && i.theme).slice(0, maxInsights),
     categories: toCategoryIds(out.categories, categories),
   };
+}
+
+/**
+ * Assess the benefit of many needs in one call (used after the benefit types are edited in /admin,
+ * or for insights created before the value view existed). Returns benefit ids + economic kind per insight id.
+ */
+export async function classifyBenefits(
+  items: { id: string; need: string; product: string; excerpt: string }[],
+  benefits: Category[],
+): Promise<Map<string, { benefits: string[]; economic?: "time" | "resources" }>> {
+  if (demoMode) {
+    return new Map(items.map((i) => {
+      const r = keywordBenefits(`${i.need} ${i.excerpt}`, benefits);
+      return [i.id, { benefits: toCategoryIds(r.benefits, benefits), economic: toEconomic(r.economic) }];
+    }));
+  }
+  const system = `Du bedömer nyttan av behov som besökare på en konferens lyft om vårdens digitalisering. Varje behov är kopplat till en Inera-tjänst eller möjlighet.
+${benefitsText(benefits)}
+
+SVARSFORMAT: svara ENDAST med JSON {"results":[{"id":"…","benefits":["nyttonamn"],"economic":""}]} med ett resultat per behov.`;
+  const out = await chatJson<{ results?: { id: string; benefits: string[]; economic: string }[] }>(system, JSON.stringify(items), {
+    type: "object",
+    properties: {
+      results: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+            benefits: { type: "array", items: { type: "string", enum: benefits.map((b) => b.name) } },
+            economic: { type: "string", enum: [ECONOMIC.time, ECONOMIC.resources, ""] },
+          },
+          required: ["id", "benefits", "economic"],
+          additionalProperties: false,
+        },
+      },
+    },
+    required: ["results"],
+    additionalProperties: false,
+  });
+  return new Map((out.results ?? []).map((r) => [r.id, { benefits: toCategoryIds(r.benefits, benefits), economic: toEconomic(r.economic) }]));
 }
 
 /**
@@ -304,6 +376,19 @@ const CATEGORY_KEYWORDS: Record<string, RegExp> = {
   medarbetare: /personal|medarbetar|arbetsmiljö|administrat|läkare|sjukskötersk|dokumentation|kompetens|profession|chef/i,
   infrastruktur: /infrastruktur|interoperab|system|journal|standard|api|robust|cyber|plattform|data|säkerhet/i,
 };
+
+// Demo-mode benefit matching (returns names, like the model does).
+const BENEFIT_KEYWORDS: Record<string, RegExp> = {
+  kvalitet: /patientsäker|kvalitet|säker|risk|kontinuitet|diagnos|jämlik|följer patienten|journal/i,
+  arbetsmiljo: /arbetsmiljö|personal|stress|kompetens|utbild|medarbetar|avlast|lärande/i,
+  ekonomi: /tid|kostnad|resurs|effektiv|produktiv|kapacitet|automatiser|administrat|dubbel/i,
+};
+
+function keywordBenefits(text: string, benefits: Category[]) {
+  const hit = benefits.filter((b) => (BENEFIT_KEYWORDS[b.id] ?? new RegExp(b.name.slice(0, 6), "i")).test(text));
+  const economic = hit.some((b) => b.id === "ekonomi") ? (/tid|administrat|dubbel/i.test(text) ? ECONOMIC.time : ECONOMIC.resources) : "";
+  return { benefits: hit.map((b) => b.name), economic };
+}
 
 function keywordCategories(text: string, categories: Category[]): string[] {
   return categories

@@ -74,6 +74,11 @@ docker compose exec ollama ollama pull qwen2.5:7b
   voices without a category sit under "Övrigt". With more than three categories the view falls back to hubs with lines. Choose one view or
   alternate between them in admin, press `V` on the wall, or lock a screen with `/wall?view=categories`.
   The layout is a force simulation ([d3-force](https://d3js.org/d3-force)) rendered with React Flow.
+- **Value view (Värde):** every Inera service/opportunity card in a Venn diagram of benefit types (default:
+  Kvalitet & patientsäkerhet, Arbetsmiljö & utvecklingsförmåga, Ekonomisk nytta). The AI assesses each need: which
+  benefits it would deliver (or none), and whether an economic benefit frees up *time* or *resources*. A card gets a
+  benefit when at least a third of its needs point to it. Cards with no clear benefit sit under "Ingen tydlig nytta".
+  The benefit types are edited in admin (max three), and *Bedöm nytta för alla behov* re-assesses existing needs.
 - **Categories (admin):** rename, recolour, describe (the description steers the AI), add or remove categories, then
   *Kategorisera om alla röster*: the AI goes through the existing voices in batches of 30. Renaming keeps the links.
 - **The wall** tours automatically: an overview, then one theme at a time. When a new voice arrives, it flies

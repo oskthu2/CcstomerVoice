@@ -235,9 +235,26 @@ th { background: #eaf0f3; }
 
 /* Venn view */
 .mm-venn { border-radius: 50%; border: 5px solid; pointer-events: none; }
-.mm-venn-label { width: 420px; height: 120px; text-align: center; font-size: 60px; font-weight: 800; line-height: 1.1; display: flex; flex-direction: column; justify-content: center; }
+.mm-venn-label { width: 520px; height: 140px; text-align: center; font-size: 60px; font-weight: 800; line-height: 1.1; display: flex; flex-direction: column; justify-content: center; }
 .mm-venn-label small { font-size: 24px; font-weight: 600; color: var(--muted); }
 .mm-voice.compact { width: 250px; height: 104px; padding: 9px 11px; gap: 3px; }
 .mm-voice.compact p { font-size: 13px; -webkit-line-clamp: 3; }
 .mm-voice.compact em { font-size: 11px; }
 .mm-voice.compact .dots span { width: 8px; height: 8px; }
+
+/* Value view */
+.mm-venn-label.long { font-size: 42px; }
+.mm-value {
+  width: 360px; height: 168px; border-radius: 14px; background: var(--panel); color: var(--text);
+  border: 2px solid var(--border); padding: 10px 12px; overflow: hidden; display: flex; flex-direction: column; gap: 4px;
+}
+.mm-value.future { border-style: dashed; border-color: var(--future); }
+.mm-value.fresh { animation: pulse 1.6s ease-out 3; border-color: #ffd666; }
+.mm-value .dots { display: flex; gap: 4px; }
+.mm-value .dots span { width: 12px; height: 12px; border-radius: 50%; }
+.mm-value h3 { margin: 0; font-size: 21px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mm-value .meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; color: var(--muted); font-size: 13px; }
+.mm-value .chip { border: 1px solid var(--border); border-radius: 999px; padding: 1px 7px; color: var(--text); }
+.mm-value p { margin: 0; font-size: 15px; line-height: 1.3; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.legend-sub { color: var(--muted); font-size: 15px; padding: 2px 4px; }
+.legend-sub b { color: var(--text); }
